@@ -13,6 +13,8 @@ export interface TableColumn<T = any> {
     title?: string;
     /** 列宽度 */
     width?: number | string;
+    /** 列最小宽度 */
+    minWidth?: number | string;
     /** 列对齐方式 */
     align?: "left" | "center" | "right";
     /** 是否固定列 */

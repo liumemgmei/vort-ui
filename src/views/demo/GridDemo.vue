@@ -154,6 +154,40 @@ const orderCode = `<template>
   </vort-row>
 </template>`;
 
+const responsiveCode = `<template>
+  <vort-row :gutter="[16, 16]">
+    <vort-col :xs="24" :sm="12" :md="8" :lg="6" :xl="4">
+      <div>Col</div>
+    </vort-col>
+    <vort-col :xs="24" :sm="12" :md="8" :lg="6" :xl="4">
+      <div>Col</div>
+    </vort-col>
+    <vort-col :xs="24" :sm="12" :md="8" :lg="6" :xl="4">
+      <div>Col</div>
+    </vort-col>
+    <vort-col :xs="24" :sm="12" :md="8" :lg="6" :xl="4">
+      <div>Col</div>
+    </vort-col>
+    <vort-col :xs="24" :sm="12" :md="8" :lg="6" :xl="4">
+      <div>Col</div>
+    </vort-col>
+    <vort-col :xs="24" :sm="12" :md="8" :lg="6" :xl="4">
+      <div>Col</div>
+    </vort-col>
+  </vort-row>
+</template>`;
+
+const responsiveObjCode = `<template>
+  <vort-row :gutter="16">
+    <vort-col :xs="{ span: 12, offset: 0 }" :md="{ span: 8, offset: 2 }" :lg="{ span: 6, offset: 0 }">
+      <div>Col</div>
+    </vort-col>
+    <vort-col :xs="{ span: 12, offset: 0 }" :md="{ span: 8, offset: 2 }" :lg="{ span: 6, offset: 0 }">
+      <div>Col</div>
+    </vort-col>
+  </vort-row>
+</template>`;
+
 // Row Props 表格数据
 const rowPropsData = [
     {
@@ -538,6 +572,60 @@ const colPropsData = [
                             </vort-col>
                             <vort-col :span="6" :order="1">
                                 <div class="grid-col-content">4 col-order-1</div>
+                            </vort-col>
+                        </vort-row>
+                    </div>
+                </DemoBox>
+
+                <DemoBox
+                    title="响应式布局"
+                    description="参照 Bootstrap 的响应式设计，预设六个响应尺寸：xs sm md lg xl xxl。调整浏览器窗口宽度可查看效果。"
+                    :code="responsiveCode"
+                >
+                    <div class="grid-demo">
+                        <vort-row :gutter="[16, 16]">
+                            <vort-col :xs="24" :sm="12" :md="8" :lg="6" :xl="4">
+                                <div class="grid-col-content">Col</div>
+                            </vort-col>
+                            <vort-col :xs="24" :sm="12" :md="8" :lg="6" :xl="4">
+                                <div class="grid-col-content">Col</div>
+                            </vort-col>
+                            <vort-col :xs="24" :sm="12" :md="8" :lg="6" :xl="4">
+                                <div class="grid-col-content">Col</div>
+                            </vort-col>
+                            <vort-col :xs="24" :sm="12" :md="8" :lg="6" :xl="4">
+                                <div class="grid-col-content">Col</div>
+                            </vort-col>
+                            <vort-col :xs="24" :sm="12" :md="8" :lg="6" :xl="4">
+                                <div class="grid-col-content">Col</div>
+                            </vort-col>
+                            <vort-col :xs="24" :sm="12" :md="8" :lg="6" :xl="4">
+                                <div class="grid-col-content">Col</div>
+                            </vort-col>
+                        </vort-row>
+                    </div>
+                </DemoBox>
+
+                <DemoBox
+                    title="响应式对象"
+                    description="span offset 等属性可以内嵌到 xs sm md lg xl xxl 对象中，在不同断点下应用不同的布局参数。"
+                    :code="responsiveObjCode"
+                >
+                    <div class="grid-demo">
+                        <vort-row :gutter="16">
+                            <vort-col
+                                :xs="{ span: 12, offset: 0 }"
+                                :md="{ span: 8, offset: 2 }"
+                                :lg="{ span: 6, offset: 0 }"
+                            >
+                                <div class="grid-col-content">Col</div>
+                            </vort-col>
+                            <vort-col
+                                :xs="{ span: 12, offset: 0 }"
+                                :md="{ span: 8, offset: 2 }"
+                                :lg="{ span: 6, offset: 0 }"
+                            >
+                                <div class="grid-col-content">Col</div>
                             </vort-col>
                         </vort-row>
                     </div>

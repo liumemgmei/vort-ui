@@ -9,13 +9,13 @@ const closeAllOtherSelects = (currentClose: () => void) => {
 };
 
 // ============ 导出类型 ============
-export type { SelectProps, SelectOption, SelectOptionContext, SelectSize, SelectStatus, SelectMode } from "./types";
+export type { SelectProps, SelectOption, SelectOptionContext, SelectSize, SelectStatus, SelectMode, SelectVariant } from "./types";
 </script>
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, useAttrs, watch } from "vue";
 import type { StyleValue } from "vue";
-import type { SelectProps, SelectOption, SelectOptionContext } from "./types";
+import type { SelectProps, SelectOption, SelectOptionContext, SelectVariant } from "./types";
 import "./select.css";
 import { CloseCircleFilled, CloseOutlined, DownOutlined, CheckOutlined } from "@/components/vort/icons";
 import { getVortPopupContainer, useZIndex } from "@/components/vort/composables";
@@ -47,10 +47,14 @@ const props = withDefaults(defineProps<SelectProps>(), {
     autoClearSearchValue: true,
     getPopupContainer: undefined,
     popupClass: undefined,
+    variant: undefined,
     bordered: true
 });
 
 const popupContainer = computed(() => props.getPopupContainer?.() ?? getVortPopupContainer());
+const resolvedVariant = computed<SelectVariant>(() => {
+    return props.variant ?? (props.bordered ? "outlined" : "borderless");
+});
 const placeholder = computed(() => props.placeholder ?? selT("placeholder"));
 const notFoundContent = computed(() => props.notFoundContent ?? selT("no_match"));
 
@@ -190,11 +194,10 @@ const displayText = computed(() => {
 
 // ============ 样式类 ============
 const triggerClasses = computed(() => {
-    const classes = ["vort-select-selector", `vort-select-${props.size}`];
+    const classes = ["vort-select-selector", `vort-select-${props.size}`, `vort-select-${resolvedVariant.value}`];
     if (isMultiple.value) classes.push("vort-select-multiple");
     if (props.status) classes.push(`vort-select-${props.status}`);
     if (props.disabled) classes.push("vort-select-disabled");
-    if (!props.bordered) classes.push("vort-select-borderless");
     if (isFocused.value || isOpen.value) classes.push("vort-select-focused");
     if (props.class) classes.push(props.class);
     return classes;
@@ -437,7 +440,7 @@ defineExpose({
 </script>
 
 <template>
-    <div class="vort-select">
+    <div class="vort-select" :style="attrsStyle">
     <!-- 隐藏的插槽容器，用于收集 VortSelectOption 子组件 -->
     <div v-show="false">
         <slot />
@@ -448,7 +451,6 @@ defineExpose({
         v-if="isMultiple"
         ref="selectorRef"
         :class="triggerClasses"
-        :style="attrsStyle"
         tabindex="0"
         @mouseenter="isHovered = true"
         @mouseleave="isHovered = false"
@@ -510,7 +512,6 @@ defineExpose({
         v-else
         ref="selectorRef"
         :class="triggerClasses"
-        :style="attrsStyle"
         tabindex="0"
         @mouseenter="isHovered = true"
         @mouseleave="isHovered = false"
@@ -672,9 +673,73 @@ defineExpose({
     cursor: not-allowed;
 }
 
-.vort-select-borderless { border-color: transparent; background: transparent; }
-.vort-select-borderless:hover:not(.vort-select-disabled) { border-color: transparent; background: rgba(0, 0, 0, 0.04); }
-.vort-select-borderless.vort-select-focused { border-color: transparent; background: transparent; box-shadow: none; }
+/* ========================================
+   形态变体 - Outlined（默认）
+   ======================================== */
+.vort-select-outlined {
+    border: 1px solid var(--_border-color);
+    background: var(--_bg-color);
+}
+
+/* ========================================
+   形态变体 - Filled
+   ======================================== */
+.vort-select-filled {
+    --_bg-color: rgba(0, 0, 0, 0.04);
+    border: 1px solid transparent;
+}
+
+.vort-select-filled:hover:not(.vort-select-disabled) {
+    --_bg-color: rgba(0, 0, 0, 0.06);
+}
+
+.vort-select-filled.vort-select-focused:not(.vort-select-disabled) {
+    --_bg-color: #fff;
+    border-color: var(--_focus-color);
+}
+
+.vort-select-filled.vort-select-error,
+.vort-select-filled.vort-select-warning {
+    border-color: var(--_border-color);
+}
+
+/* ========================================
+   形态变体 - Borderless
+   ======================================== */
+.vort-select-borderless {
+    border: 1px solid transparent;
+    background: transparent;
+}
+
+.vort-select-borderless:hover:not(.vort-select-disabled) {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: transparent;
+}
+
+.vort-select-borderless.vort-select-focused:not(.vort-select-disabled) {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+}
+
+/* ========================================
+   形态变体 - Underlined
+   ======================================== */
+.vort-select-underlined {
+    border: none;
+    border-bottom: 1px solid var(--_border-color);
+    border-radius: 0;
+    background: transparent;
+}
+
+.vort-select-underlined:hover:not(.vort-select-disabled) {
+    border-bottom-color: var(--_focus-color);
+}
+
+.vort-select-underlined.vort-select-focused:not(.vort-select-disabled) {
+    border-bottom-color: var(--_focus-color);
+    box-shadow: none;
+}
 
 /* 尺寸 */
 .vort-select-large { height: var(--vort-height-lg, 40px); padding: 0 11px; font-size: var(--vort-font-size-md, 16px); }

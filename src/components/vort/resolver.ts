@@ -173,37 +173,7 @@ const componentMap: Record<string, { from: string; name: string }> = {
     VortMenuItem: { from: "@/components/vort/menu", name: "MenuItem" },
     VortSubMenu: { from: "@/components/vort/menu", name: "SubMenu" },
     VortMenuItemGroup: { from: "@/components/vort/menu", name: "MenuItemGroup" },
-    VortMenuDivider: { from: "@/components/vort/menu", name: "MenuDivider" },
-
-    // =====================
-    // 业务 UI 库 (vort-biz/)
-    // =====================
-
-    // Icon
-    VortIcon: { from: "@/components/vort-biz/icon", name: "VortIcon" },
-
-    // SearchToolbar
-    SearchToolbar: { from: "@/components/vort-biz/search-toolbar", name: "SearchToolbar" },
-    SearchForm: { from: "@/components/vort-biz/search-toolbar", name: "SearchForm" },
-    SearchFormItem: { from: "@/components/vort-biz/search-toolbar", name: "SearchFormItem" },
-    SearchFormActions: { from: "@/components/vort-biz/search-toolbar", name: "SearchFormActions" },
-
-    // DialogForm
-    DialogForm: { from: "@/components/vort-biz/dialog-form", name: "DialogForm" },
-
-    // PopForm
-    PopForm: { from: "@/components/vort-biz/pop-form", name: "PopForm" },
-
-    // TableActions
-    TableActions: { from: "@/components/vort-biz/table-actions", name: "TableActions" },
-    TableActionsItem: { from: "@/components/vort-biz/table-actions", name: "TableActionsItem" },
-    TableActionsMoreItem: { from: "@/components/vort-biz/table-actions", name: "TableActionsMoreItem" },
-
-    // DeleteRecord
-    DeleteRecord: { from: "@/components/vort-biz/delete-record", name: "DeleteRecord" },
-
-    // BatchActions
-    BatchActions: { from: "@/components/vort-biz/batch-actions", name: "BatchActions" }
+    VortMenuDivider: { from: "@/components/vort/menu", name: "MenuDivider" }
 };
 
 /**

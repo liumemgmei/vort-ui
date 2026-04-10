@@ -7,6 +7,8 @@ export interface TableColumnProps {
     label?: string;
     /** 列宽度 */
     width?: number | string;
+    /** 列最小宽度 */
+    minWidth?: number | string;
     /** 列对齐方式 */
     align?: "left" | "center" | "right";
     /** 是否固定列 */
@@ -164,6 +166,7 @@ const buildColumnConfig = (): TableColumn => {
         dataIndex: props.prop,
         title: props.label,
         width: props.width,
+        minWidth: props.minWidth,
         align: props.align,
         fixed: props.fixed,
         className: props.className,
@@ -251,6 +254,7 @@ watch(
         props.prop,
         props.label,
         props.width,
+        props.minWidth,
         props.align,
         props.fixed,
         props.className,

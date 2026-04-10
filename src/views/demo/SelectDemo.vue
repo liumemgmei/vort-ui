@@ -64,6 +64,16 @@ const scrollContainerRef = ref<HTMLElement | null>(null);
 const value14 = ref<string>("lucy");
 const value15 = ref<string[]>(["gold", "lime"]);
 
+// variant 示例
+const variantOutlined = ref<string>("lucy");
+const variantFilled = ref<string>("lucy");
+const variantBorderless = ref<string>("lucy");
+const variantUnderlined = ref<string>("lucy");
+const variantOutlinedMulti = ref<string[]>(["gold"]);
+const variantFilledMulti = ref<string[]>(["gold"]);
+const variantBorderlessMulti = ref<string[]>(["gold"]);
+const variantUnderlinedMulti = ref<string[]>(["gold"]);
+
 // 示例代码
 const basicCode = `<script setup>
 import { ref } from "vue";
@@ -304,6 +314,19 @@ const value2 = ref(["gold", "lime"]);
   />
 </template>`;
 
+const variantCode = `<script setup>
+import { ref } from "vue";
+
+const value = ref("lucy");
+<\/script>
+
+<template>
+  <vort-select v-model="value" :options="options" variant="outlined" placeholder="Outlined" />
+  <vort-select v-model="value" :options="options" variant="filled" placeholder="Filled" />
+  <vort-select v-model="value" :options="options" variant="borderless" placeholder="Borderless" />
+  <vort-select v-model="value" :options="options" variant="underlined" placeholder="Underlined" />
+</template>`;
+
 const slotOptionsCode = `<script setup>
 import { ref } from "vue";
 
@@ -435,8 +458,14 @@ const propsData = [
         default: "-"
     },
     {
+        prop: "variant",
+        desc: "形态变体",
+        type: "'outlined' | 'filled' | 'borderless' | 'underlined'",
+        default: "'outlined'"
+    },
+    {
         prop: "bordered",
-        desc: "是否有边框",
+        desc: "是否有边框（兼容旧用法，优先使用 variant）",
         type: "boolean",
         default: "true"
     }
@@ -617,8 +646,34 @@ const slotsData = [
                     </div>
                 </DemoBox>
 
-                <!-- 无边框 -->
-                <DemoBox title="无边框" description="设置 bordered 为 false 可以隐藏边框，适合嵌入到其他组件中使用。" :code="borderedCode">
+                <!-- 形态变体 -->
+                <DemoBox
+                    title="形态变体"
+                    description="Select 形态变体，可选 outlined、filled、borderless、underlined 四种形态。"
+                    :code="variantCode"
+                >
+                    <div class="flex flex-col gap-4">
+                        <div class="flex items-center gap-4 flex-wrap">
+                            <vort-select v-model="variantOutlined" :options="basicOptions" variant="outlined" placeholder="Outlined" style="width: 200px" />
+                            <vort-select v-model="variantOutlinedMulti" :options="moreOptions" variant="outlined" mode="multiple" placeholder="Outlined" style="width: 200px" />
+                        </div>
+                        <div class="flex items-center gap-4 flex-wrap">
+                            <vort-select v-model="variantFilled" :options="basicOptions" variant="filled" placeholder="Filled" style="width: 200px" />
+                            <vort-select v-model="variantFilledMulti" :options="moreOptions" variant="filled" mode="multiple" placeholder="Filled" style="width: 200px" />
+                        </div>
+                        <div class="flex items-center gap-4 flex-wrap">
+                            <vort-select v-model="variantBorderless" :options="basicOptions" variant="borderless" placeholder="Borderless" style="width: 200px" />
+                            <vort-select v-model="variantBorderlessMulti" :options="moreOptions" variant="borderless" mode="multiple" placeholder="Borderless" style="width: 200px" />
+                        </div>
+                        <div class="flex items-center gap-4 flex-wrap">
+                            <vort-select v-model="variantUnderlined" :options="basicOptions" variant="underlined" placeholder="Underlined" style="width: 200px" />
+                            <vort-select v-model="variantUnderlinedMulti" :options="moreOptions" variant="underlined" mode="multiple" placeholder="Underlined" style="width: 200px" />
+                        </div>
+                    </div>
+                </DemoBox>
+
+                <!-- 无边框（兼容旧用法） -->
+                <DemoBox title="无边框" description="设置 bordered 为 false 可以隐藏边框（兼容旧用法，推荐使用 variant='borderless'）。" :code="borderedCode">
                     <div class="flex flex-col gap-4">
                         <div class="flex items-center gap-4 flex-wrap">
                             <vort-select v-model="value14" :options="basicOptions" placeholder="有边框" style="width: 200px" />

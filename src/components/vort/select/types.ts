@@ -11,6 +11,15 @@ export type SelectStatus = "error" | "warning";
 /** 选择器模式（多选/标签） */
 export type SelectMode = "multiple" | "tags";
 
+/**
+ * 选择器形态变体
+ * - outlined: 默认有边框
+ * - filled: 填充背景
+ * - borderless: 无边框
+ * - underlined: 下划线
+ */
+export type SelectVariant = "outlined" | "filled" | "borderless" | "underlined";
+
 /** 选项接口 */
 export interface SelectOption {
     /** 选项值 */
@@ -69,7 +78,9 @@ export interface SelectProps {
     getPopupContainer?: () => HTMLElement;
     /** 下拉面板额外 class */
     popupClass?: string;
-    /** 是否有边框 */
+    /** 形态变体 */
+    variant?: SelectVariant;
+    /** 是否有边框（兼容旧用法，优先使用 variant） */
     bordered?: boolean;
 }
 

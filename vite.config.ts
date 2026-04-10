@@ -3,16 +3,15 @@ import vue from "@vitejs/plugin-vue";
 import path from "path";
 import Components from "unplugin-vue-components/vite";
 import { VortResolver } from "./src/components/vort/resolver";
+import { searchIndexPlugin } from "./plugins/vite-plugin-search-index";
 
 export default defineConfig({
   plugins: [
     vue(),
-    // Vort UI 组件自动导入
+    searchIndexPlugin(),
     Components({
-      // 禁用目录扫描，只使用自定义解析器
       dirs: [],
       resolvers: [VortResolver()],
-      // 生成类型声明文件
       dts: "src/components.d.ts",
     }),
   ],

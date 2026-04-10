@@ -4,6 +4,21 @@
 
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.2.0] - 2026-04-10
+
+### 新增
+- Select 组件新增 `variant` 属性，支持 outlined、filled、borderless、underlined 四种形态变体
+- Col 组件新增响应式断点属性（xs/sm/md/lg/xl/xxl），支持 CSS 变量驱动的响应式栅格布局
+- Table 组件增强列宽处理逻辑，支持 `minWidth` 锁定功能（fixed 布局下智能判断是否锁定列宽）
+- 文档站新增全局搜索功能（⌘K），支持按组件名、属性、事件、描述等维度检索
+
+### 修复
+- 修复 InputSearch 组件 `style` 属性未正确透传到根元素的问题
+- 修复 Table 固定列偏移计算未考虑 `minWidth` 回退的问题
+
+### 重构
+- 优化 `useZIndex` 组合函数，移除冗余的 `useZIndexProvider`，统一使用 `useZIndexProviderValue`
+
 ## [1.1.1] - 2026-03-27
 
 ### 新增

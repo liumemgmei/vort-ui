@@ -1,4 +1,4 @@
-import { computed, inject, provide, ref, type ComputedRef, type InjectionKey, type Ref } from "vue";
+import { computed, inject, provide, type ComputedRef, type InjectionKey, type Ref } from "vue";
 
 /** z-index 层级管理 - 解决 Dialog/Drawer 内嵌弹出层级问题 */
 
@@ -62,38 +62,20 @@ const Z_INDEX_CONTEXT_KEY: InjectionKey<ZIndexContext> = Symbol("vort-z-index-co
  * 为容器组件提供 z-index 上下文
  *
  * @description
- * 在 Dialog、Drawer 等容器组件中调用，将自己的 z-index 传递给子组件
+ * 在 Dialog、Drawer 等容器组件中调用，将自己的 z-index 传递给子组件。
+ * 子组件通过 useZIndex 获取时，会自动加上增量值，确保弹出层始终在容器之上。
  *
- * @param zIndex 容器组件的 z-index 值（响应式）
+ * @param getZIndex 获取 z-index 值的函数（响应式）
  *
  * @example
  * ```vue
  * <script setup>
- * import { useZIndexProvider } from '@/components/vort/composables'
- *
- * const props = defineProps<{ zIndex: number }>()
+ * import { useZIndexProviderValue } from '@/components/vort/composables'
  *
  * // 将 Dialog 的 z-index 提供给子组件
- * useZIndexProvider(computed(() => props.zIndex))
+ * useZIndexProviderValue(() => props.zIndex)
  * </script>
  * ```
- */
-export function useZIndexProvider(zIndex: Ref<number> | ComputedRef<number>): void {
-    provide(Z_INDEX_CONTEXT_KEY, {
-        zIndex: ref(zIndex.value)
-    });
-
-    // 如果是响应式的，需要同步更新
-    // 这里我们使用一个 computed 包装，让 inject 的组件也能响应变化
-}
-
-/**
- * 为容器组件提供 z-index 上下文（增强版）
- *
- * @description
- * 与 useZIndexProvider 类似，但会自动处理响应式更新
- *
- * @param getZIndex 获取 z-index 值的函数
  */
 export function useZIndexProviderValue(getZIndex: () => number): void {
     provide(Z_INDEX_CONTEXT_KEY, {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, useAttrs } from "vue";
+import { computed, ref, useAttrs, type StyleValue } from "vue";
 import VortInput from "./Input.vue";
 import VortButton from "@/components/vort/button/Button.vue";
 import { SearchOutlined } from "@/components/vort/icons";
@@ -30,6 +30,13 @@ const emit = defineEmits<{
 
 const attrs = useAttrs();
 const inputRef = ref<InstanceType<typeof VortInput> | null>(null);
+
+const rootStyle = computed(() => attrs.style as StyleValue | undefined);
+const inputAttrs = computed(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { style: _style, ...rest } = attrs;
+    return rest;
+});
 
 // 内部值
 const innerValue = computed(() => String(props.modelValue ?? props.defaultValue ?? ""));
@@ -126,10 +133,10 @@ defineExpose({
 </script>
 
 <template>
-    <span :class="wrapperClasses">
+    <span :class="wrapperClasses" :style="rootStyle">
         <VortInput
             ref="inputRef"
-            v-bind="{ ...inputProps, ...attrs }"
+            v-bind="{ ...inputProps, ...inputAttrs }"
             class="vort-input-search-input"
             @update:model-value="handleModelValueUpdate"
             @input="handleInput"

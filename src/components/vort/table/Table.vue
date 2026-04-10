@@ -1055,7 +1055,7 @@ const getFixedColumnStyle = (column: TableColumn, isHeader: boolean = false) => 
         for (const col of leafColumns.value) {
             if (col === column) break;
             if (col.fixed === "left") {
-                leftOffset += parseColumnWidth(col.width || 0);
+                leftOffset += parseColumnWidth(col.width || col.minWidth || 0);
             }
         }
 
@@ -1071,7 +1071,7 @@ const getFixedColumnStyle = (column: TableColumn, isHeader: boolean = false) => 
         for (const col of reversedColumns) {
             if (col === column) break;
             if (col.fixed === "right") {
-                rightOffset += parseColumnWidth(col.width || 0);
+                rightOffset += parseColumnWidth(col.width || col.minWidth || 0);
             }
         }
 
@@ -1106,6 +1106,124 @@ const parseColumnWidth = (width: number | string | undefined): number => {
     if (typeof width === "number") return width;
     const num = parseInt(width, 10);
     return isNaN(num) ? 100 : num;
+};
+
+// 格式化尺寸值为 CSS 字符串
+const formatSize = (value: number | string | undefined): string | undefined => {
+    if (!value) return undefined;
+    return typeof value === "number" ? `${value}px` : value;
+};
+
+/**
+ * table-layout: fixed 下 minWidth 的处理策略
+ *
+ * fixed 布局中，未设 <col width> 的列会平分剩余空间。
+ * 对于设了 minWidth 的列，需要判断平分值是否 ≥ minWidth：
+ * - 平分值 ≥ minWidth → 不设 col width，让它正常参与平分（自动分配）
+ * - 平分值 < minWidth → 设 col width = minWidth，锁定该列宽度
+ *
+ * 注意：表格实际宽度 = max(scroll.x, 容器宽度)，因为设了 min-width: 100%。
+ * 必须用实际 DOM 宽度来计算平分值，而不是 scroll.x。
+ */
+
+// 追踪表格容器的实际渲染宽度，用于 minWidth 计算
+const tableActualWidth = ref(0);
+
+const updateTableActualWidth = () => {
+    if (tableWrapperRef.value) {
+        tableActualWidth.value = tableWrapperRef.value.clientWidth;
+    }
+};
+
+/**
+ * 预计算 table-layout: fixed 下哪些 minWidth 列需要锁定宽度。
+ * 使用 computed 保证响应式 + 缓存，避免每列重复计算。
+ *
+ * 迭代算法：处理多个 minWidth 列互相影响的情况。
+ * 例如 minWidth 300 被锁定后，剩余空间减少，可能导致 minWidth 200 的列也需要锁定。
+ */
+const fixedMinWidthLocks = computed<Map<string, number>>(() => {
+    const map = new Map<string, number>();
+    if (!props.scroll?.x) return map;
+
+    const scrollX = typeof props.scroll.x === "number" ? props.scroll.x : parseInt(props.scroll.x, 10) || 0;
+
+    // DOM 尚未测量时不锁定任何列，让弹性列平分；ResizeObserver 触发后会重新计算
+    if (tableActualWidth.value === 0) return map;
+
+    const actualWidth = Math.max(scrollX, tableActualWidth.value);
+    if (actualWidth <= 0) return map;
+
+    const cols = leafColumns.value;
+    const selectionWidth = props.rowSelection ? parseColumnWidth(props.rowSelection.columnWidth || "48px") : 0;
+
+    // Collect column info: separate fixed-width vs flexible columns
+    let fixedTotal = selectionWidth;
+    interface FlexCol { key: string; minW: number; locked: boolean }
+    const flexCols: FlexCol[] = [];
+
+    for (const col of cols) {
+        const key = col._uid || col.key || col.dataIndex || col.title || "";
+        if (col.width) {
+            fixedTotal += parseColumnWidth(col.width);
+        } else {
+            const mw = col.minWidth ? parseColumnWidth(col.minWidth) : 0;
+            flexCols.push({ key, minW: mw, locked: false });
+        }
+    }
+
+    if (flexCols.length === 0) return map;
+
+    // Iteratively lock columns whose minWidth > equal share of remaining space
+    let changed = true;
+    while (changed) {
+        changed = false;
+        const unlocked = flexCols.filter((fc) => !fc.locked);
+        if (unlocked.length === 0) break;
+
+        const remaining = actualWidth - fixedTotal - flexCols.filter((fc) => fc.locked).reduce((s, fc) => s + fc.minW, 0);
+        const avgShare = remaining / unlocked.length;
+
+        for (const fc of unlocked) {
+            if (fc.minW > 0 && fc.minW > avgShare) {
+                fc.locked = true;
+                changed = true;
+            }
+        }
+    }
+
+    // Only record locked columns that have minWidth
+    for (const fc of flexCols) {
+        if (fc.locked && fc.minW > 0) {
+            map.set(fc.key, fc.minW);
+        }
+    }
+
+    return map;
+});
+
+const getColStyle = (column: TableColumn): Record<string, string | undefined> => {
+    const w = formatSize(column.width);
+
+    // table-layout: auto（无 scroll.x）
+    if (!props.scroll?.x) {
+        if (w) return { width: w };
+        const mw = formatSize(column.minWidth);
+        if (mw) return { width: mw }; // auto 下 col width 天然是最小宽度
+        return {};
+    }
+
+    // table-layout: fixed（有 scroll.x）
+    if (w) return { width: w };
+
+    // Check if this column is locked by minWidth constraint
+    const key = column._uid || column.key || column.dataIndex || column.title || "";
+    const lockedWidth = fixedMinWidthLocks.value.get(key);
+    if (lockedWidth) {
+        return { width: `${lockedWidth}px` };
+    }
+
+    return {};
 };
 
 // 获取 fixed-left 的最后一个列的 key（需要显示阴影，使用叶子列）
@@ -1242,11 +1360,13 @@ const initScrollObserver = () => {
     if (!wrapper) return;
 
     updateScrollState();
+    updateTableActualWidth();
     wrapper.addEventListener("scroll", handleTableScroll);
 
     // 使用 ResizeObserver 监听尺寸变化
     resizeObserver = new ResizeObserver(() => {
         updateScrollState();
+        updateTableActualWidth();
     });
     resizeObserver.observe(wrapper);
 };
@@ -1324,9 +1444,7 @@ defineExpose({
                     <col
                         v-for="column in leafColumns"
                         :key="column.key || column.dataIndex || column.title"
-                        :style="{
-                            width: column.width ? (typeof column.width === 'number' ? `${column.width}px` : column.width) : undefined
-                        }"
+                        :style="getColStyle(column)"
                     />
                 </colgroup>
                 <!-- 表头 -->
@@ -1369,11 +1487,6 @@ defineExpose({
                                     cell.column.headerClassName
                                 ]"
                                 :style="{
-                                    width: cell.column.width
-                                        ? typeof cell.column.width === 'number'
-                                            ? `${cell.column.width}px`
-                                            : cell.column.width
-                                        : undefined,
                                     ...getFixedColumnStyle(cell.column, true)
                                 }"
                                 :colspan="cell.colSpan > 1 ? cell.colSpan : undefined"
@@ -1440,7 +1553,6 @@ defineExpose({
                                 column.headerClassName
                             ]"
                             :style="{
-                                width: column.width ? (typeof column.width === 'number' ? `${column.width}px` : column.width) : undefined,
                                 ...getFixedColumnStyle(column, true)
                             }"
                             @click="column.sorter ? handleSort(column) : undefined"
