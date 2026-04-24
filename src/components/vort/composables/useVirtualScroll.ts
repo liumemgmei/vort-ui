@@ -3,8 +3,8 @@
  * 基于 @tanstack/vue-virtual 封装，用于 Table/Select 等组件
  */
 
-import { ref, computed, type Ref, type ComputedRef, watch, onMounted, nextTick } from "vue";
-import { useVirtualizer, type VirtualizerOptions } from "@tanstack/vue-virtual";
+import { computed, type Ref, type ComputedRef } from "vue";
+import { useVirtualizer } from "@tanstack/vue-virtual";
 
 export interface UseVirtualScrollOptions<T = unknown> {
     /** 数据列表 */
@@ -65,9 +65,7 @@ export function useVirtualScroll<T = unknown>(options: UseVirtualScrollOptions<T
     }));
 
     // 创建虚拟滚动器
-    const virtualizer = useVirtualizer<HTMLElement, HTMLElement>(
-        virtualizerOptions as Parameters<typeof useVirtualizer<HTMLElement, HTMLElement>>[0]
-    );
+    const virtualizer = useVirtualizer<HTMLElement, HTMLElement>(virtualizerOptions as Parameters<typeof useVirtualizer<HTMLElement, HTMLElement>>[0]);
 
     // 虚拟化的行
     const virtualRows = computed(() => {

@@ -52,7 +52,7 @@ export interface InputProps {
 export interface InputEmits {
     /** 值更新事件 */
     (e: "update:modelValue", value: string): void;
-    /** 原生 change 事件 */
+    /** change 事件：原生 change 触发（失焦且值变化）时派发；点击清除按钮时也会派发合成事件，保持与 Ant Design 行为一致 */
     (e: "change", event: Event): void;
     /** 原生 input 事件 */
     (e: "input", event: Event): void;

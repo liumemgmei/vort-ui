@@ -185,7 +185,7 @@ const propsData = [
     {
         prop: "tipFormatter",
         desc: "格式化 Tooltip 内容，设为 null 时隐藏 Tooltip",
-        type: "((value: number) => string) | null",
+        type: "((value) => string) | null",
         default: "-"
     }
 ];

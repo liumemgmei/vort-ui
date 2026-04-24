@@ -73,19 +73,29 @@ const updatePosition = () => {
 };
 
 const clearTimers = () => {
-    if (enterTimer) { clearTimeout(enterTimer); enterTimer = null; }
-    if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; }
+    if (enterTimer) {
+        clearTimeout(enterTimer);
+        enterTimer = null;
+    }
+    if (leaveTimer) {
+        clearTimeout(leaveTimer);
+        leaveTimer = null;
+    }
 };
 
 const handleMouseEnter = () => {
     if (props.disabled) return;
     clearTimers();
-    enterTimer = setTimeout(() => { isOpen.value = true; }, 100);
+    enterTimer = setTimeout(() => {
+        isOpen.value = true;
+    }, 100);
 };
 
 const handleMouseLeave = () => {
     clearTimers();
-    leaveTimer = setTimeout(() => { isOpen.value = false; }, 150);
+    leaveTimer = setTimeout(() => {
+        isOpen.value = false;
+    }, 150);
 };
 
 const handleContentMouseEnter = () => {
@@ -94,7 +104,9 @@ const handleContentMouseEnter = () => {
 
 const handleContentMouseLeave = () => {
     clearTimers();
-    leaveTimer = setTimeout(() => { isOpen.value = false; }, 150);
+    leaveTimer = setTimeout(() => {
+        isOpen.value = false;
+    }, 150);
 };
 
 const handleKeydown = (e: KeyboardEvent) => {

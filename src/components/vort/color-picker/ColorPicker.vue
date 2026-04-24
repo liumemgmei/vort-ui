@@ -81,7 +81,7 @@ const alpha = ref(100); // 0-100
 // ==================== 浮层 ====================
 const { triggerRef, floatingRef, isOpen, position, triggerHandlers, floatingHandlers, hide } = useFloating({
     placement: props.placement,
-    trigger: props.trigger as any,
+    trigger: (props.trigger ?? "click") as TriggerType,
     disabled: props.disabled,
     gap: props.arrow ? 10 : 4
 });

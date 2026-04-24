@@ -193,19 +193,19 @@ const parseDate = (value: unknown): Date | null => {
     if (value instanceof Date) return isNaN(value.getTime()) ? null : value;
 
     // 兼容 dayjs 等库（toDate / $d）
-    if (typeof value === "object") {
-        const anyValue = value as any;
-        if (typeof anyValue?.toDate === "function") {
-            const d = anyValue.toDate();
+    if (typeof value === "object" && value !== null) {
+        const obj = value as { toDate?: () => Date; $d?: Date };
+        if (typeof obj.toDate === "function") {
+            const d = obj.toDate();
             return d instanceof Date && !isNaN(d.getTime()) ? d : null;
         }
-        if (anyValue?.$d instanceof Date) {
-            const d = anyValue.$d as Date;
+        if (obj.$d instanceof Date) {
+            const d = obj.$d;
             return !isNaN(d.getTime()) ? d : null;
         }
     }
 
-    const d = new Date(value as any);
+    const d = new Date(value as string | number | Date);
     return isNaN(d.getTime()) ? null : d;
 };
 
@@ -1301,12 +1301,7 @@ defineExpose({
         <!-- 后缀图标 -->
         <span class="vort-rangepicker-suffix">
             <!-- 清除按钮 -->
-            <span
-                class="vort-rangepicker-clear"
-                :class="{ 'vort-rangepicker-clear-visible': showClearButton }"
-                @click="handleClear"
-                @mousedown.prevent
-            >
+            <span class="vort-rangepicker-clear" :class="{ 'vort-rangepicker-clear-visible': showClearButton }" @click="handleClear" @mousedown.prevent>
                 <CloseCircleFilled />
             </span>
         </span>
@@ -1772,8 +1767,8 @@ defineExpose({
 
                 <!-- 底部按钮 -->
                 <div v-if="showTime" class="vort-datepicker-footer vort-datepicker-footer-showtime">
-                    <VortButton v-if="showNow" variant="text" size="small" @click="selectNow">{{ dpT('now') }}</VortButton>
-                    <VortButton variant="primary" size="small" @click="confirmSelection">{{ dpT('ok') }}</VortButton>
+                    <VortButton v-if="showNow" variant="text" size="small" @click="selectNow">{{ dpT("now") }}</VortButton>
+                    <VortButton variant="primary" size="small" @click="confirmSelection">{{ dpT("ok") }}</VortButton>
                 </div>
             </div>
         </Transition>

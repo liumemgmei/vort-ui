@@ -4,6 +4,25 @@
 
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.3.0] - 2026-04-24
+
+### 新增
+- Cascader 新增 `selectOnItemClickInMultiple` Props（默认 `true`），多选模式下支持点击整行直接选中
+- Input 组件 `clear` 操作新增 emit `change` 合成事件，业务方监听 `@change` 时可读到清空后的值，对齐 Ant Design / Element Plus 行为
+- Select 组件 `clear`、`removeTag` 操作新增 emit `change` 事件，对齐 Ant Design 行为
+- DatePicker、Upload 的 `types.ts` 补充类型导出
+
+### 修复
+- 修复 Cascader `getOptionLabel` 对 `null` / 空值的处理，避免渲染异常
+- 修复 DatePicker `selectedDate.setHours(...)` 直接修改原 Date 对象导致的状态污染问题
+- 修复 Select 多选模式下标签删除、清除按钮交互的若干细节问题
+- 修复 ColorPicker、Dialog、Dropdown、Slider、Switch、Tabs、TimePicker 等组件的若干小问题
+
+### 重构
+- 收紧 TypeScript 类型声明（消除 `as any`，统一使用具体类型或 `unknown` 收窄）
+- Select.vue 大规模重构（+604 行），优化模板结构与多选交互逻辑
+- 按 Prettier / ESLint 规范统一格式化 `components/vort/` 全量代码
+
 ## [1.2.0] - 2026-04-10
 
 ### 新增

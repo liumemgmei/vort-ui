@@ -618,12 +618,7 @@ defineExpose({
         <!-- 后缀图标 -->
         <span class="vort-timepicker-suffix">
             <!-- 清除按钮 -->
-            <span
-                class="vort-timepicker-clear"
-                :class="{ 'vort-timepicker-clear-visible': showClearButton }"
-                @click="handleClear"
-                @mousedown.prevent
-            >
+            <span class="vort-timepicker-clear" :class="{ 'vort-timepicker-clear-visible': showClearButton }" @click="handleClear" @mousedown.prevent>
                 <CloseCircleFilled :class="iconSizeClass" />
             </span>
         </span>

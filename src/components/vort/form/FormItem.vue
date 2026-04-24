@@ -173,8 +173,8 @@ const createRulesValidator = (rules: unknown[]) => {
                             }
                         });
                     });
-                } catch (e: any) {
-                    return e.message || formT("validation_failed");
+                } catch (e: unknown) {
+                    return e instanceof Error ? e.message || formT("validation_failed") : formT("validation_failed");
                 }
                 continue;
             }
@@ -242,7 +242,7 @@ const {
     ? useField(fieldName, rulesValidator, {
           validateOnValueUpdate: true
       })
-    : { errorMessage: ref(""), meta: ref({}), validate: () => Promise.resolve({ valid: true }) };
+    : { errorMessage: ref(""), meta: ref<Record<string, unknown>>({}), validate: () => Promise.resolve({ valid: true }) };
 
 // 计算最终的 labelWidth
 const finalLabelWidth = computed(() => {

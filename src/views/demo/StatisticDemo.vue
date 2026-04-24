@@ -219,7 +219,7 @@ const countdownEventsData = [
     {
         event: "change",
         desc: "倒计时变化时触发",
-        params: "(value: number) => void"
+        params: "(value) => void"
     }
 ];
 

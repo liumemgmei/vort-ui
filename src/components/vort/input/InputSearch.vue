@@ -33,7 +33,6 @@ const inputRef = ref<InstanceType<typeof VortInput> | null>(null);
 
 const rootStyle = computed(() => attrs.style as StyleValue | undefined);
 const inputAttrs = computed(() => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { style: _style, ...rest } = attrs;
     return rest;
 });

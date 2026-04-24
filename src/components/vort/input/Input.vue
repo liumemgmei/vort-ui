@@ -56,9 +56,6 @@ const isClearButtonVisible = computed(() => shouldRenderClearButton.value && !!i
 // 是否有前缀/后缀/清除按钮
 const hasAffixes = computed(() => !!slots.prefix || !!slots.suffix || props.allowClear || props.showCount);
 
-// 是否有后缀区域
-const hasSuffix = computed(() => !!slots.suffix || props.allowClear || props.showCount);
-
 // 是否有 addon
 const hasAddon = computed(() => !!slots.addonBefore || !!slots.addonAfter);
 
@@ -155,9 +152,24 @@ const handleKeydown = (event: KeyboardEvent) => {
     }
 };
 
-const handleClear = () => {
+const handleClear = (event: MouseEvent) => {
+    event.stopPropagation();
     innerValue.value = "";
     emit("update:modelValue", "");
+    // 构造合成 change 事件（对齐 Ant Design / Element Plus 行为）：
+    // 参考 rc-input 做法，基于原 event 创建新对象并克隆 input 节点置空 value，
+    // 既能让监听 @change 的业务方通过 event.target.value 读到清空后的值，
+    // 又不会污染原始 MouseEvent 或真实 DOM 节点
+    let changeEvent: Event = event;
+    if (inputRef.value) {
+        const cloneTarget = inputRef.value.cloneNode(true) as HTMLInputElement;
+        cloneTarget.value = "";
+        changeEvent = Object.create(event, {
+            target: { value: cloneTarget, writable: false, configurable: true, enumerable: true },
+            currentTarget: { value: cloneTarget, writable: false, configurable: true, enumerable: true }
+        }) as Event;
+    }
+    emit("change", changeEvent);
     emit("clear");
     inputRef.value?.focus();
 };

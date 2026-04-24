@@ -647,27 +647,63 @@ const slotsData = [
                 </DemoBox>
 
                 <!-- 形态变体 -->
-                <DemoBox
-                    title="形态变体"
-                    description="Select 形态变体，可选 outlined、filled、borderless、underlined 四种形态。"
-                    :code="variantCode"
-                >
+                <DemoBox title="形态变体" description="Select 形态变体，可选 outlined、filled、borderless、underlined 四种形态。" :code="variantCode">
                     <div class="flex flex-col gap-4">
                         <div class="flex items-center gap-4 flex-wrap">
                             <vort-select v-model="variantOutlined" :options="basicOptions" variant="outlined" placeholder="Outlined" style="width: 200px" />
-                            <vort-select v-model="variantOutlinedMulti" :options="moreOptions" variant="outlined" mode="multiple" placeholder="Outlined" style="width: 200px" />
+                            <vort-select
+                                v-model="variantOutlinedMulti"
+                                :options="moreOptions"
+                                variant="outlined"
+                                mode="multiple"
+                                placeholder="Outlined"
+                                style="width: 200px"
+                            />
                         </div>
                         <div class="flex items-center gap-4 flex-wrap">
                             <vort-select v-model="variantFilled" :options="basicOptions" variant="filled" placeholder="Filled" style="width: 200px" />
-                            <vort-select v-model="variantFilledMulti" :options="moreOptions" variant="filled" mode="multiple" placeholder="Filled" style="width: 200px" />
+                            <vort-select
+                                v-model="variantFilledMulti"
+                                :options="moreOptions"
+                                variant="filled"
+                                mode="multiple"
+                                placeholder="Filled"
+                                style="width: 200px"
+                            />
                         </div>
                         <div class="flex items-center gap-4 flex-wrap">
-                            <vort-select v-model="variantBorderless" :options="basicOptions" variant="borderless" placeholder="Borderless" style="width: 200px" />
-                            <vort-select v-model="variantBorderlessMulti" :options="moreOptions" variant="borderless" mode="multiple" placeholder="Borderless" style="width: 200px" />
+                            <vort-select
+                                v-model="variantBorderless"
+                                :options="basicOptions"
+                                variant="borderless"
+                                placeholder="Borderless"
+                                style="width: 200px"
+                            />
+                            <vort-select
+                                v-model="variantBorderlessMulti"
+                                :options="moreOptions"
+                                variant="borderless"
+                                mode="multiple"
+                                placeholder="Borderless"
+                                style="width: 200px"
+                            />
                         </div>
                         <div class="flex items-center gap-4 flex-wrap">
-                            <vort-select v-model="variantUnderlined" :options="basicOptions" variant="underlined" placeholder="Underlined" style="width: 200px" />
-                            <vort-select v-model="variantUnderlinedMulti" :options="moreOptions" variant="underlined" mode="multiple" placeholder="Underlined" style="width: 200px" />
+                            <vort-select
+                                v-model="variantUnderlined"
+                                :options="basicOptions"
+                                variant="underlined"
+                                placeholder="Underlined"
+                                style="width: 200px"
+                            />
+                            <vort-select
+                                v-model="variantUnderlinedMulti"
+                                :options="moreOptions"
+                                variant="underlined"
+                                mode="multiple"
+                                placeholder="Underlined"
+                                style="width: 200px"
+                            />
                         </div>
                     </div>
                 </DemoBox>

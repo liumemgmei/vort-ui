@@ -613,18 +613,10 @@ const colPropsData = [
                 >
                     <div class="grid-demo">
                         <vort-row :gutter="16">
-                            <vort-col
-                                :xs="{ span: 12, offset: 0 }"
-                                :md="{ span: 8, offset: 2 }"
-                                :lg="{ span: 6, offset: 0 }"
-                            >
+                            <vort-col :xs="{ span: 12, offset: 0 }" :md="{ span: 8, offset: 2 }" :lg="{ span: 6, offset: 0 }">
                                 <div class="grid-col-content">Col</div>
                             </vort-col>
-                            <vort-col
-                                :xs="{ span: 12, offset: 0 }"
-                                :md="{ span: 8, offset: 2 }"
-                                :lg="{ span: 6, offset: 0 }"
-                            >
+                            <vort-col :xs="{ span: 12, offset: 0 }" :md="{ span: 8, offset: 2 }" :lg="{ span: 6, offset: 0 }">
                                 <div class="grid-col-content">Col</div>
                             </vort-col>
                         </vort-row>

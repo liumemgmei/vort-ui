@@ -162,7 +162,6 @@ const handleKeydown = (event: KeyboardEvent) => {
         }
     }
 };
-
 </script>
 
 <template>

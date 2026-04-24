@@ -3,8 +3,12 @@ import { ref, computed, onMounted } from "vue";
 import type { TableColumnType, TableRowSelection } from "@/components/vort";
 import DemoBox from "./components/DemoBox.vue";
 
-// 基础数据类型
-interface UserRecord {
+type VortTableRec = Record<string, unknown>;
+const vortColumns = <T extends VortTableRec>(cols: TableColumnType<T>[]) => cols as unknown as TableColumnType<VortTableRec>[];
+const vortRowSelection = <T extends VortTableRec>(sel: TableRowSelection<T>) => sel as unknown as TableRowSelection<VortTableRec>;
+
+// 基础数据类型（与 vort-table 的 TableRecord 约束对齐）
+interface UserRecord extends Record<string, unknown> {
     id: number;
     name: string;
     age: number;
@@ -128,7 +132,7 @@ const fixedColumnColumns: TableColumnType<UserRecord>[] = [
 ];
 
 // 处理排序变化
-const handleSortChange = (pagination: any, filters: any, sorter: any) => {
+const handleSortChange = (pagination: unknown, filters: unknown, sorter: unknown) => {
     console.log("排序变化:", sorter);
 };
 
@@ -207,12 +211,12 @@ const actionRowSelection = computed<TableRowSelection<UserRecord>>(() => ({
     })
 }));
 
-// 事件处理（使用泛型支持多种记录类型）
-const handleEdit = <T extends { id: number }>(record: T) => {
+// 事件处理（记录行满足 vort-table Record 约束）
+const handleEdit = (record: Record<string, unknown>) => {
     console.log("编辑:", record);
 };
 
-const handleDelete = <T extends { id: number }>(record: T) => {
+const handleDelete = (record: Record<string, unknown>) => {
     console.log("删除:", record);
 };
 
@@ -312,7 +316,7 @@ const rowSelection = computed(() => ({
     <vort-table
         :columns="columns"
         :data-source="dataSource"
-        :row-selection="rowSelection"
+        :row-selection="vortRowSelection(rowSelection)"
     />
 </template>`;
 
@@ -450,7 +454,7 @@ const handleEdit = (row) => {
 // Props 表格数据
 const propsData = [
     { prop: "columns", desc: "列配置", type: "TableColumn[]", default: "-" },
-    { prop: "dataSource", desc: "数据源", type: "any[]", default: "[]" },
+    { prop: "dataSource", desc: "数据源", type: "unknown[]", default: "[]" },
     { prop: "rowKey", desc: "行 key 的取值字段或函数", type: "string | ((record) => string | number)", default: "'id'" },
     { prop: "bordered", desc: "是否显示边框", type: "boolean", default: "false" },
     { prop: "stripe", desc: "是否显示斑马纹", type: "boolean", default: "false" },
@@ -545,7 +549,7 @@ const tableColumnSlotsData = [
 ];
 
 // ==================== 树形表格数据 ====================
-interface TreeRecord {
+interface TreeRecord extends Record<string, unknown> {
     id: number;
     name: string;
     description: string;
@@ -606,6 +610,8 @@ const loadTreeChildren = async (row: TreeRecord): Promise<TreeRecord[]> => {
     return [];
 };
 
+const loadTreeChildrenTable = (row: VortTableRec) => loadTreeChildren(row as TreeRecord);
+
 // 树形表格 ref
 const treeTableRef = ref();
 
@@ -645,7 +651,7 @@ const refreshChildren = (parentId) => {
     <vort-table
         ref="tableRef"
         :data-source="treeData"
-        :load-children="loadTreeChildren"
+        :load-children="loadTreeChildrenTable"
         :tree="true"
         :pagination="false"
         row-key="id"
@@ -687,7 +693,7 @@ const treeMethodsData = [
 ];
 
 // ==================== 多级表头数据 ====================
-interface MultiHeaderRecord {
+interface MultiHeaderRecord extends Record<string, unknown> {
     id: number;
     date: string;
     name: string;
@@ -839,17 +845,17 @@ const columns = [
             <div class="demo-grid">
                 <!-- 基本使用 -->
                 <DemoBox title="基本使用" description="简单的表格展示。" :code="basicCode">
-                    <vort-table :columns="basicColumns" :data-source="basicData" :pagination="false" />
+                    <vort-table :columns="vortColumns(basicColumns)" :data-source="basicData" :pagination="false" />
                 </DemoBox>
 
                 <!-- 带边框 -->
                 <DemoBox title="带边框" description="添加 bordered 属性可显示带边框的表格。" :code="borderedCode">
-                    <vort-table :columns="basicColumns" :data-source="basicData" bordered :pagination="false" />
+                    <vort-table :columns="vortColumns(basicColumns)" :data-source="basicData" bordered :pagination="false" />
                 </DemoBox>
 
                 <!-- 斑马纹 -->
                 <DemoBox title="斑马纹" description="使用 stripe 属性可以显示斑马纹效果。" :code="stripeCode">
-                    <vort-table :columns="basicColumns" :data-source="basicData" stripe :pagination="false" />
+                    <vort-table :columns="vortColumns(basicColumns)" :data-source="basicData" stripe :pagination="false" />
                 </DemoBox>
 
                 <!-- 三种尺寸 -->
@@ -857,15 +863,15 @@ const columns = [
                     <div class="demo-table-sizes">
                         <div class="demo-table-size-item">
                             <h4>Large</h4>
-                            <vort-table :columns="basicColumns" :data-source="basicData" size="large" :pagination="false" />
+                            <vort-table :columns="vortColumns(basicColumns)" :data-source="basicData" size="large" :pagination="false" />
                         </div>
                         <div class="demo-table-size-item">
                             <h4>Middle（默认）</h4>
-                            <vort-table :columns="basicColumns" :data-source="basicData" size="middle" :pagination="false" />
+                            <vort-table :columns="vortColumns(basicColumns)" :data-source="basicData" size="middle" :pagination="false" />
                         </div>
                         <div class="demo-table-size-item">
                             <h4>Small</h4>
-                            <vort-table :columns="basicColumns" :data-source="basicData" size="small" :pagination="false" />
+                            <vort-table :columns="vortColumns(basicColumns)" :data-source="basicData" size="small" :pagination="false" />
                         </div>
                     </div>
                 </DemoBox>
@@ -874,13 +880,13 @@ const columns = [
                 <DemoBox title="加载状态" description="设置 loading 属性显示加载中状态。" :code="loadingCode">
                     <div class="demo-table-loading">
                         <vort-button variant="primary" @click="toggleLoading" style="margin-bottom: 16px"> 切换加载状态 </vort-button>
-                        <vort-table :columns="basicColumns" :data-source="basicData" :loading="loading" :pagination="false" />
+                        <vort-table :columns="vortColumns(basicColumns)" :data-source="basicData" :loading="loading" :pagination="false" />
                     </div>
                 </DemoBox>
 
                 <!-- 分页 -->
                 <DemoBox title="分页" description="配置 pagination 属性可实现分页功能。" :code="paginationCode">
-                    <vort-table :columns="basicColumns" :data-source="paginationData" :pagination="paginationConfig" @change="handleChange" />
+                    <vort-table :columns="vortColumns(basicColumns)" :data-source="paginationData" :pagination="paginationConfig" @change="handleChange" />
                 </DemoBox>
 
                 <!-- 行选择 -->
@@ -890,13 +896,23 @@ const columns = [
                             已选择 {{ selectedRowKeys.length }} 项
                             <vort-button variant="link" size="small" @click="selectedRowKeys = []">清空</vort-button>
                         </div>
-                        <vort-table :columns="basicColumns" :data-source="basicData" :row-selection="rowSelection" :pagination="false" />
+                        <vort-table
+                            :columns="vortColumns(basicColumns)"
+                            :data-source="basicData"
+                            :row-selection="vortRowSelection(rowSelection)"
+                            :pagination="false"
+                        />
                     </div>
                 </DemoBox>
 
                 <!-- 自定义列渲染 -->
                 <DemoBox title="自定义列渲染" description="通过插槽自定义单元格内容，如状态标签、操作按钮等。" :code="slotCode">
-                    <vort-table :columns="statusColumns" :data-source="statusData" :row-selection="actionRowSelection" :pagination="false">
+                    <vort-table
+                        :columns="vortColumns(statusColumns)"
+                        :data-source="statusData"
+                        :row-selection="vortRowSelection(actionRowSelection)"
+                        :pagination="false"
+                    >
                         <!-- 自定义状态列 -->
                         <template #status="{ text }">
                             <span :class="['status-tag', text === 'active' ? 'status-active' : 'status-inactive']">
@@ -914,7 +930,7 @@ const columns = [
 
                 <!-- 空状态 -->
                 <DemoBox title="空状态" description="数据为空时显示空状态。" :code="emptyCode">
-                    <vort-table :columns="basicColumns" :data-source="[]" :pagination="false" />
+                    <vort-table :columns="vortColumns(basicColumns)" :data-source="[]" :pagination="false" />
                 </DemoBox>
 
                 <!-- 排序 -->
@@ -923,7 +939,7 @@ const columns = [
                     description="设置 sorter 属性开启列排序功能。点击表头可切换排序状态（升序/降序/无排序）。支持传入自定义排序函数或设为 true 使用默认排序。"
                     :code="sortCode"
                 >
-                    <vort-table :columns="sortColumns" :data-source="sortData" :pagination="false" @change="handleSortChange" />
+                    <vort-table :columns="vortColumns(sortColumns)" :data-source="sortData" :pagination="false" @change="handleSortChange" />
                 </DemoBox>
 
                 <!-- 多级表头（columns 配置方式） -->
@@ -932,7 +948,7 @@ const columns = [
                     description="通过在列配置中设置 children 属性可实现多级表头。子列会自动计算 colspan 和 rowspan，适用于复杂数据结构的展示。"
                     :code="multiHeaderCode"
                 >
-                    <vort-table :columns="multiHeaderColumns" :data-source="multiHeaderData" bordered :pagination="false" />
+                    <vort-table :columns="vortColumns(multiHeaderColumns)" :data-source="multiHeaderData" bordered :pagination="false" />
                 </DemoBox>
 
                 <!-- 多级表头（TableColumn 嵌套方式） -->
@@ -957,12 +973,17 @@ const columns = [
 
                 <!-- 固定表头 -->
                 <DemoBox title="固定表头" description="设置 scroll.y 可以固定表头，表体滚动时表头保持不动。" :code="fixedHeaderCode">
-                    <vort-table :columns="fixedHeaderColumns" :data-source="fixedData" :scroll="{ y: 300 }" :pagination="false" />
+                    <vort-table :columns="vortColumns(fixedHeaderColumns)" :data-source="fixedData" :scroll="{ y: 300 }" :pagination="false" />
                 </DemoBox>
 
                 <!-- 固定列 -->
                 <DemoBox title="固定列" description="对于列数很多的数据，可以使用 fixed 属性固定前后的列。横向滚动时固定列保持不动。" :code="fixedColumnCode">
-                    <vort-table :columns="fixedColumnColumns" :data-source="fixedData.slice(0, 10)" :scroll="{ x: 1200, y: 300 }" :pagination="false">
+                    <vort-table
+                        :columns="vortColumns(fixedColumnColumns)"
+                        :data-source="fixedData.slice(0, 10)"
+                        :scroll="{ x: 1200, y: 300 }"
+                        :pagination="false"
+                    >
                         <template #action="{ record }">
                             <vort-button variant="link" size="small" @click="handleEdit(record)">编辑</vort-button>
                         </template>
@@ -1001,7 +1022,7 @@ const columns = [
                         </div>
                     </div>
                     <vort-table
-                        :columns="virtualColumns"
+                        :columns="vortColumns(virtualColumns)"
                         :data-source="virtualData"
                         :scroll="{ y: 400 }"
                         :pagination="false"
@@ -1042,7 +1063,7 @@ const columns = [
                     description="通过设置 loadChildren 属性实现树形数据的懒加载展开。点击展开图标会调用 loadChildren 方法加载子节点。适用于层级较深或数据量大的树形数据展示；也可以通过 tree 参数手动开启或关闭树形模式。"
                     :code="treeTableCode"
                 >
-                    <vort-table ref="treeTableRef" :data-source="treeData" :load-children="loadTreeChildren" :tree="true" :pagination="false" row-key="id">
+                    <vort-table ref="treeTableRef" :data-source="treeData" :load-children="loadTreeChildrenTable" :tree="true" :pagination="false" row-key="id">
                         <vort-table-column prop="name" label="名称" :width="280" />
                         <vort-table-column prop="description" label="描述" />
                         <vort-table-column label="操作" :width="150">

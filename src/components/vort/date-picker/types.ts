@@ -19,6 +19,8 @@ export type RangeValue = [Date | null, Date | null] | null;
 
 /** showTime 配置选项 */
 export interface ShowTimeOptions {
+    /** 展示格式（透传底层 picker） */
+    format?: string;
     /** 小时选项间隔 */
     hourStep?: number;
     /** 分钟选项间隔 */

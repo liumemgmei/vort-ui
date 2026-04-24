@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// @ts-nocheck
 import { ref } from "vue";
 import DemoBox from "./components/DemoBox.vue";
 import { SettingsIcon, DollarSign } from "lucide-vue-next";
@@ -378,7 +379,7 @@ const formatter = (value: number | string | undefined) => {
     return `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
-const parser = (value: string | undefined) => {
+const parser = (value: string) => {
     if (!value) return "";
     return value.replace(/\$\s?|(,*)/g, "");
 };

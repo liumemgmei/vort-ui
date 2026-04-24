@@ -78,6 +78,8 @@ interface Props {
     showCheckedStrategy?: ShowCheckedStrategy;
     /** 关闭时是否销毁弹出层 DOM */
     destroyPopupOnHide?: boolean;
+    /** 多选模式下是否允许点击整行直接选中 */
+    selectOnItemClickInMultiple?: boolean;
 }
 
 export type { Props as CascaderProps };
@@ -119,7 +121,8 @@ const props = withDefaults(defineProps<Props>(), {
     maxTagPlaceholder: undefined,
     displayRender: undefined,
     showCheckedStrategy: "SHOW_CHILD",
-    destroyPopupOnHide: false
+    destroyPopupOnHide: false,
+    selectOnItemClickInMultiple: true
 });
 
 const placeholder = computed(() => props.placeholder ?? casT("placeholder"));
@@ -168,15 +171,17 @@ const childrenField = computed(() => props.fieldNames.children || "children");
 
 // ============ 获取选项属性的辅助函数 ============
 const getOptionLabel = (option: CascaderOption): string => {
-    return (option as any)[labelField.value] || "";
+    // CascaderOption is a loose tree node; narrow via unknown for dynamic field access
+    const v = (option as unknown as Record<string, unknown>)[labelField.value];
+    return v == null || v === "" ? "" : String(v);
 };
 
 const getOptionValue = (option: CascaderOption): string | number => {
-    return (option as any)[valueField.value];
+    return (option as unknown as Record<string, unknown>)[valueField.value] as string | number;
 };
 
 const getOptionChildren = (option: CascaderOption): CascaderOption[] | undefined => {
-    return (option as any)[childrenField.value];
+    return (option as unknown as Record<string, unknown>)[childrenField.value] as CascaderOption[] | undefined;
 };
 
 // ============ 选项树元数据缓存（性能优化核心） ============
@@ -241,17 +246,6 @@ const optionMetaMap = computed(() => {
 
     buildMeta(props.options, []);
     return map;
-});
-
-// 所有叶子节点的路径键集合（用于快速查找）
-const allLeafPathKeys = computed(() => {
-    const keys = new Set<string>();
-    optionMetaMap.value.forEach((meta) => {
-        if (meta.isLeaf) {
-            keys.add(meta.pathKey);
-        }
-    });
-    return keys;
 });
 
 // ============ 计算属性 ============
@@ -693,6 +687,26 @@ const handleOptionExpand = (option: CascaderOption, columnIndex: number) => {
     hoverPath.value = newPath;
 };
 
+const buildDeepestExpandedPath = (path: CascaderValue): CascaderValue => {
+    const result = [...path];
+    let currentOptions = props.options;
+
+    for (const value of path) {
+        const currentOption = currentOptions.find((opt) => getOptionValue(opt) === value);
+        currentOptions = currentOption ? getOptionChildren(currentOption) || [] : [];
+    }
+
+    while (currentOptions.length > 0) {
+        const nextOption = currentOptions.find((option) => !option.disabled) || currentOptions[0];
+        if (!nextOption) break;
+
+        result.push(getOptionValue(nextOption));
+        currentOptions = getOptionChildren(nextOption) || [];
+    }
+
+    return result;
+};
+
 // 处理选项点击
 const handleOptionClick = (option: CascaderOption, columnIndex: number) => {
     if (option.disabled) return;
@@ -700,13 +714,18 @@ const handleOptionClick = (option: CascaderOption, columnIndex: number) => {
     const value = getOptionValue(option);
     const children = getOptionChildren(option);
     const newPath = [...expandedPath.value.slice(0, columnIndex), value];
+    const expandedTargetPath = props.multiple && !props.selectOnItemClickInMultiple ? buildDeepestExpandedPath(newPath) : newPath;
 
     // 如果是 hover 展开模式，点击时更新 expandedPath
     if (props.expandTrigger === "hover") {
-        expandedPath.value = newPath;
+        expandedPath.value = expandedTargetPath;
     } else {
-        expandedPath.value = newPath;
-        hoverPath.value = newPath;
+        expandedPath.value = expandedTargetPath;
+        hoverPath.value = expandedTargetPath;
+    }
+
+    if (props.multiple && !props.selectOnItemClickInMultiple) {
+        return;
     }
 
     // 检查是否是叶子节点
@@ -746,13 +765,13 @@ const selectValue = (path: CascaderValue) => {
     } else {
         emit("update:modelValue", path);
         emit("change", path, options);
-        
+
         // 只有在选择了叶子节点时才关闭下拉框
         // changeOnSelect 模式下，选择非叶子节点不关闭，允许继续展开子级
         const lastOption = options[options.length - 1];
         const children = lastOption ? getOptionChildren(lastOption) : undefined;
         const isLeaf = !children || children.length === 0 || lastOption?.isLeaf;
-        
+
         if (isLeaf) {
             closeDropdown();
         }
@@ -802,29 +821,6 @@ const selectDirectory = (option: CascaderOption, parentPath: CascaderValue) => {
         outputValues,
         outputValues.map((p) => getOptionByPath(p))
     );
-};
-
-// 获取某个选项下的所有叶子节点路径
-const getAllLeafPaths = (options: CascaderOption[], parentPath: CascaderValue = []): CascaderValue[] => {
-    const result: CascaderValue[] = [];
-
-    for (const option of options) {
-        if (option.disabled) continue;
-
-        const value = getOptionValue(option);
-        const currentPath = [...parentPath, value];
-        const children = getOptionChildren(option);
-
-        if (children && children.length > 0) {
-            // 有子节点，递归获取
-            result.push(...getAllLeafPaths(children, currentPath));
-        } else {
-            // 叶子节点
-            result.push(currentPath);
-        }
-    }
-
-    return result;
 };
 
 // 检查叶子路径是否被选中（使用缓存的 Set，O(1) 查找）
@@ -1009,7 +1005,11 @@ watch(
 // ============ 暴露方法 ============
 defineExpose({
     focus: () => inputRef.value?.focus(),
-    blur: () => inputRef.value?.blur()
+    blur: () => inputRef.value?.blur(),
+    setExpandedPath: (path: (string | number)[]) => {
+        expandedPath.value = buildDeepestExpandedPath(path);
+        hoverPath.value = [];
+    }
 });
 </script>
 
@@ -1040,7 +1040,7 @@ defineExpose({
             <template v-if="multiple">
                 <div class="vort-cascader-selection">
                     <!-- 已选标签 -->
-                    <span v-for="(tag, index) in displayedTags" :key="tag.path.join(',')" :class="tagClasses">
+                    <span v-for="tag in displayedTags" :key="tag.path.join(',')" :class="tagClasses">
                         <span class="vort-cascader-tag-text">{{ tag.labels.join(" / ") }}</span>
                         <span v-if="!disabled" class="vort-cascader-tag-remove" @click.stop="handleRemoveTag(tag)">
                             <CloseOutlined class="vort-cascader-tag-remove-icon" />
@@ -1102,12 +1102,7 @@ defineExpose({
             <span class="vort-cascader-suffix">
                 <span class="vort-cascader-indicator">
                     <!-- 清除按钮 -->
-                    <span
-                        class="vort-cascader-clear"
-                        :class="{ 'vort-cascader-clear-visible': isClearButtonVisible }"
-                        @click="handleClear"
-                        @mousedown.prevent
-                    >
+                    <span class="vort-cascader-clear" :class="{ 'vort-cascader-clear-visible': isClearButtonVisible }" @click="handleClear" @mousedown.prevent>
                         <CloseCircleFilled />
                     </span>
 

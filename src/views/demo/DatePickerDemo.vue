@@ -567,7 +567,7 @@ const propsData = [
     {
         prop: "presets",
         desc: "预设日期（显示在弹层左侧，垂直排列）",
-        type: "Array<{ label: string; value: any }>",
+        type: "Array<{ label: string; value: unknown }>",
         default: "-"
     },
     {
@@ -699,7 +699,7 @@ const rangePropsData = [
     {
         prop: "presets",
         desc: "预设范围（显示在弹层左侧，垂直排列）",
-        type: "Array<{ label: string; value: [any, any] }>",
+        type: "Array<{ label: string; value: [unknown, unknown] }>",
         default: "-"
     },
     {

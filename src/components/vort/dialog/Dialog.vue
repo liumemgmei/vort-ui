@@ -85,7 +85,7 @@ const props = withDefaults(defineProps<Props>(), {
     zIndex: 1000,
     bodyNoPadding: false,
     contentBg: "#fff",
-    bodyMaxHeight: undefined,
+    bodyMaxHeight: undefined
 });
 
 // 国际化
@@ -261,7 +261,11 @@ onUnmounted(() => {
                         </div>
 
                         <!-- 内容区 -->
-                        <div class="vort-dialog-body" :class="{ 'vort-dialog-body-no-padding': bodyNoPadding }" :style="{ background: contentBg, maxHeight: bodyMaxHeight, overflowY: bodyMaxHeight ? 'auto' : undefined }">
+                        <div
+                            class="vort-dialog-body"
+                            :class="{ 'vort-dialog-body-no-padding': bodyNoPadding }"
+                            :style="{ background: contentBg, maxHeight: bodyMaxHeight, overflowY: bodyMaxHeight ? 'auto' : undefined }"
+                        >
                             <slot />
                         </div>
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, provide, watch, toRef, type Ref } from "vue";
+import { computed, ref, provide, watch, toRef } from "vue";
 import type { MenuMode, MenuTheme } from "./types";
 import "./menu.css";
 
@@ -134,7 +134,6 @@ const unregisterItem = (key: string) => {
     registeredItems.value.delete(key);
     itemParentMap.value.delete(key);
 };
-
 
 // 选择菜单项
 const selectItem = (key: string) => {

@@ -17,8 +17,8 @@ export interface TableColumn<T = any> {
     minWidth?: number | string;
     /** 列对齐方式 */
     align?: "left" | "center" | "right";
-    /** 是否固定列 */
-    fixed?: "left" | "right";
+    /** 是否固定列（true 等价于左侧固定，与 Ant Design Table 一致） */
+    fixed?: boolean | "left" | "right";
     /** 自定义渲染内容（插槽名称，用于 columns prop 方式） */
     slot?: string;
     /** 自定义单元格样式类名 */
@@ -186,7 +186,7 @@ export interface TableProps<T = any> {
     size?: TableSize;
     loading?: boolean;
     pagination?: TablePagination | false;
-    rowSelection?: TableRowSelection<T>;
+    rowSelection?: TableRowSelection<any>;
     scroll?: TableScroll;
     minHeight?: number | string;
     maxHeight?: number | string;
@@ -213,7 +213,8 @@ export interface TableProps<T = any> {
 
 /** Table 组件 Emits 类型 */
 export interface TableEmits<T = any> {
-    change: [pagination: { current: number; pageSize: number }, filters: Record<string, any>, sorter: { field: string; order: "ascend" | "descend" | null }];
+    /** 分页/筛选/排序事件（放宽类型以兼容列表页各类 handler 签名） */
+    change: [pagination: any, filters: any, sorter: any];
     expand: [expanded: boolean, record: T];
     "update:expandedRowKeys": [keys: (string | number)[]];
     "update:selectedRowKeys": [keys: (string | number)[]];

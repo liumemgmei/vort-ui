@@ -308,242 +308,248 @@ const slotsData = [
             <div class="demo-grid">
                 <!-- 基础用法 -->
                 <DemoBox title="内联菜单" description="垂直菜单，子菜单内嵌在菜单区域。" :code="basicCode">
-            <div style="width: 256px">
-                <vort-menu
-                    v-model:selected-keys="selectedKeys"
-                    v-model:open-keys="openKeys"
-                    mode="inline"
-                    @select="handleSelect"
-                    @click="handleClick"
-                    @open-change="handleOpenChange"
-                >
-                    <vort-menu-item item-key="1">
-                        <template #icon><Home class="w-4 h-4" /></template>
-                        Navigation One
-                    </vort-menu-item>
-                    <vort-menu-item item-key="2">
-                        <template #icon><Settings class="w-4 h-4" /></template>
-                        Navigation Two
-                    </vort-menu-item>
-                    <vort-sub-menu item-key="sub1" title="Navigation Three">
-                        <template #icon><User class="w-4 h-4" /></template>
-                        <vort-menu-item item-key="3">Option 3</vort-menu-item>
-                        <vort-menu-item item-key="4">Option 4</vort-menu-item>
-                        <vort-sub-menu item-key="sub1-2" title="Submenu">
-                            <vort-menu-item item-key="5">Option 5</vort-menu-item>
-                            <vort-menu-item item-key="6">Option 6</vort-menu-item>
-                        </vort-sub-menu>
-                    </vort-sub-menu>
-                    <vort-sub-menu item-key="sub2" title="Navigation Four">
-                        <template #icon><Folder class="w-4 h-4" /></template>
-                        <vort-menu-item item-key="7">Option 7</vort-menu-item>
-                        <vort-menu-item item-key="8">Option 8</vort-menu-item>
-                    </vort-sub-menu>
-                </vort-menu>
-            </div>
-        </DemoBox>
+                    <div style="width: 256px">
+                        <vort-menu
+                            v-model:selected-keys="selectedKeys"
+                            v-model:open-keys="openKeys"
+                            mode="inline"
+                            @select="handleSelect"
+                            @click="handleClick"
+                            @open-change="handleOpenChange"
+                        >
+                            <vort-menu-item item-key="1">
+                                <template #icon><Home class="w-4 h-4" /></template>
+                                Navigation One
+                            </vort-menu-item>
+                            <vort-menu-item item-key="2">
+                                <template #icon><Settings class="w-4 h-4" /></template>
+                                Navigation Two
+                            </vort-menu-item>
+                            <vort-sub-menu item-key="sub1" title="Navigation Three">
+                                <template #icon><User class="w-4 h-4" /></template>
+                                <vort-menu-item item-key="3">Option 3</vort-menu-item>
+                                <vort-menu-item item-key="4">Option 4</vort-menu-item>
+                                <vort-sub-menu item-key="sub1-2" title="Submenu">
+                                    <vort-menu-item item-key="5">Option 5</vort-menu-item>
+                                    <vort-menu-item item-key="6">Option 6</vort-menu-item>
+                                </vort-sub-menu>
+                            </vort-sub-menu>
+                            <vort-sub-menu item-key="sub2" title="Navigation Four">
+                                <template #icon><Folder class="w-4 h-4" /></template>
+                                <vort-menu-item item-key="7">Option 7</vort-menu-item>
+                                <vort-menu-item item-key="8">Option 8</vort-menu-item>
+                            </vort-sub-menu>
+                        </vort-menu>
+                    </div>
+                </DemoBox>
 
-        <!-- 切换菜单类型 -->
-        <DemoBox title="切换菜单类型" description="展示 inline 模式的菜单，可以控制折叠和切换主题。" :code="switchDemoCode">
-            <div>
-                <div class="flex items-center gap-6 mb-4">
-                    <div class="flex items-center gap-2">
-                        <vort-switch v-model:checked="switchCollapsed" />
-                        <span>Collapsed</span>
+                <!-- 切换菜单类型 -->
+                <DemoBox title="切换菜单类型" description="展示 inline 模式的菜单，可以控制折叠和切换主题。" :code="switchDemoCode">
+                    <div>
+                        <div class="flex items-center gap-6 mb-4">
+                            <div class="flex items-center gap-2">
+                                <vort-switch v-model:checked="switchCollapsed" />
+                                <span>Collapsed</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <vort-switch v-model:checked="switchDarkMode" />
+                                <span>Dark</span>
+                            </div>
+                        </div>
+                        <div :style="{ width: switchMenuWidth, transition: 'width 0.2s' }">
+                            <vort-menu
+                                v-model:selected-keys="switchDemoSelectedKeys"
+                                v-model:open-keys="switchDemoOpenKeys"
+                                mode="inline"
+                                :theme="switchTheme"
+                                :inline-collapsed="switchCollapsed"
+                            >
+                                <vort-menu-item item-key="1" title="Navigation One">
+                                    <template #icon><Mail class="w-4 h-4" /></template>
+                                    Navigation One
+                                </vort-menu-item>
+                                <vort-menu-item item-key="2" title="Navigation Two">
+                                    <template #icon><Calendar class="w-4 h-4" /></template>
+                                    Navigation Two
+                                </vort-menu-item>
+                                <vort-sub-menu item-key="sub1" title="Navigation Two">
+                                    <template #icon><Settings class="w-4 h-4" /></template>
+                                    <vort-menu-item item-key="3">Option 1</vort-menu-item>
+                                    <vort-menu-item item-key="4">Option 2</vort-menu-item>
+                                    <vort-menu-item item-key="5">Option 3</vort-menu-item>
+                                    <vort-menu-item item-key="6">Option 4</vort-menu-item>
+                                </vort-sub-menu>
+                                <vort-sub-menu item-key="sub2" title="Navigation Three">
+                                    <template #icon><Settings class="w-4 h-4" /></template>
+                                    <vort-menu-item item-key="7">Option 5</vort-menu-item>
+                                    <vort-menu-item item-key="8">Option 6</vort-menu-item>
+                                    <vort-menu-item item-key="9">Option 7</vort-menu-item>
+                                    <vort-menu-item item-key="10">Option 8</vort-menu-item>
+                                </vort-sub-menu>
+                                <vort-menu-item item-key="link" title="Ant Design">
+                                    <template #icon><Link class="w-4 h-4" /></template>
+                                    <a href="https://antdv.com" target="_blank" rel="noopener">Ant Design</a>
+                                </vort-menu-item>
+                            </vort-menu>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <vort-switch v-model:checked="switchDarkMode" />
-                        <span>Dark</span>
-                    </div>
-                </div>
-                <div :style="{ width: switchMenuWidth, transition: 'width 0.2s' }">
-                    <vort-menu
-                        v-model:selected-keys="switchDemoSelectedKeys"
-                        v-model:open-keys="switchDemoOpenKeys"
-                        mode="inline"
-                        :theme="switchTheme"
-                        :inline-collapsed="switchCollapsed"
-                    >
-                        <vort-menu-item item-key="1" title="Navigation One">
+                </DemoBox>
+
+                <!-- 顶部导航 -->
+                <DemoBox title="顶部导航" description="水平的顶部导航菜单。" :code="horizontalCode">
+                    <vort-menu v-model:selected-keys="selectedKeys2" mode="horizontal">
+                        <vort-menu-item item-key="mail">
                             <template #icon><Mail class="w-4 h-4" /></template>
                             Navigation One
                         </vort-menu-item>
-                        <vort-menu-item item-key="2" title="Navigation Two">
-                            <template #icon><Calendar class="w-4 h-4" /></template>
-                            Navigation Two
-                        </vort-menu-item>
-                        <vort-sub-menu item-key="sub1" title="Navigation Two">
-                            <template #icon><Settings class="w-4 h-4" /></template>
-                            <vort-menu-item item-key="3">Option 1</vort-menu-item>
-                            <vort-menu-item item-key="4">Option 2</vort-menu-item>
-                            <vort-menu-item item-key="5">Option 3</vort-menu-item>
-                            <vort-menu-item item-key="6">Option 4</vort-menu-item>
+                        <vort-menu-item item-key="app" disabled> Navigation Two (disabled) </vort-menu-item>
+                        <vort-sub-menu item-key="sub1" title="Navigation Three - Submenu">
+                            <vort-menu-item-group title="Item 1">
+                                <vort-menu-item item-key="setting:1">Option 1</vort-menu-item>
+                                <vort-menu-item item-key="setting:2">Option 2</vort-menu-item>
+                            </vort-menu-item-group>
+                            <vort-menu-item-group title="Item 2">
+                                <vort-menu-item item-key="setting:3">Option 3</vort-menu-item>
+                                <vort-menu-item item-key="setting:4">Option 4</vort-menu-item>
+                            </vort-menu-item-group>
                         </vort-sub-menu>
-                        <vort-sub-menu item-key="sub2" title="Navigation Three">
-                            <template #icon><Settings class="w-4 h-4" /></template>
-                            <vort-menu-item item-key="7">Option 5</vort-menu-item>
-                            <vort-menu-item item-key="8">Option 6</vort-menu-item>
-                            <vort-menu-item item-key="9">Option 7</vort-menu-item>
-                            <vort-menu-item item-key="10">Option 8</vort-menu-item>
-                        </vort-sub-menu>
-                        <vort-menu-item item-key="link" title="Ant Design">
-                            <template #icon><Link class="w-4 h-4" /></template>
-                            <a href="https://antdv.com" target="_blank" rel="noopener">Ant Design</a>
+                        <vort-menu-item item-key="link">
+                            <a href="https://antdv.com" target="_blank" rel="noopener">Navigation Four</a>
                         </vort-menu-item>
                     </vort-menu>
-                </div>
-            </div>
-        </DemoBox>
+                </DemoBox>
 
-        <!-- 顶部导航 -->
-        <DemoBox title="顶部导航" description="水平的顶部导航菜单。" :code="horizontalCode">
-            <vort-menu v-model:selected-keys="selectedKeys2" mode="horizontal">
-                <vort-menu-item item-key="mail">
-                    <template #icon><Mail class="w-4 h-4" /></template>
-                    Navigation One
-                </vort-menu-item>
-                <vort-menu-item item-key="app" disabled> Navigation Two (disabled) </vort-menu-item>
-                <vort-sub-menu item-key="sub1" title="Navigation Three - Submenu">
-                    <vort-menu-item-group title="Item 1">
-                        <vort-menu-item item-key="setting:1">Option 1</vort-menu-item>
-                        <vort-menu-item item-key="setting:2">Option 2</vort-menu-item>
-                    </vort-menu-item-group>
-                    <vort-menu-item-group title="Item 2">
-                        <vort-menu-item item-key="setting:3">Option 3</vort-menu-item>
-                        <vort-menu-item item-key="setting:4">Option 4</vort-menu-item>
-                    </vort-menu-item-group>
-                </vort-sub-menu>
-                <vort-menu-item item-key="link">
-                    <a href="https://antdv.com" target="_blank" rel="noopener">Navigation Four</a>
-                </vort-menu-item>
-            </vort-menu>
-        </DemoBox>
+                <!-- 垂直菜单 -->
+                <DemoBox title="垂直菜单" description="子菜单是弹出的形式。" :code="verticalCode">
+                    <div style="width: 256px">
+                        <vort-menu v-model:selected-keys="selectedKeys3" mode="vertical">
+                            <vort-menu-item item-key="1">
+                                <template #icon><Mail class="w-4 h-4" /></template>
+                                Navigation One
+                            </vort-menu-item>
+                            <vort-menu-item item-key="2">
+                                <template #icon><Calendar class="w-4 h-4" /></template>
+                                Navigation Two
+                            </vort-menu-item>
+                            <vort-sub-menu item-key="sub1" title="Navigation Three">
+                                <template #icon><Settings class="w-4 h-4" /></template>
+                                <vort-menu-item item-key="3">Option 1</vort-menu-item>
+                                <vort-menu-item item-key="4">Option 2</vort-menu-item>
+                                <vort-menu-item item-key="5">Option 3</vort-menu-item>
+                            </vort-sub-menu>
+                            <vort-sub-menu item-key="sub2" title="Navigation Four">
+                                <template #icon><Folder class="w-4 h-4" /></template>
+                                <vort-menu-item item-key="6">Option 4</vort-menu-item>
+                                <vort-menu-item item-key="7">Option 5</vort-menu-item>
+                            </vort-sub-menu>
+                        </vort-menu>
+                    </div>
+                </DemoBox>
 
-        <!-- 垂直菜单 -->
-        <DemoBox title="垂直菜单" description="子菜单是弹出的形式。" :code="verticalCode">
-            <div style="width: 256px">
-                <vort-menu v-model:selected-keys="selectedKeys3" mode="vertical">
-                    <vort-menu-item item-key="1">
-                        <template #icon><Mail class="w-4 h-4" /></template>
-                        Navigation One
-                    </vort-menu-item>
-                    <vort-menu-item item-key="2">
-                        <template #icon><Calendar class="w-4 h-4" /></template>
-                        Navigation Two
-                    </vort-menu-item>
-                    <vort-sub-menu item-key="sub1" title="Navigation Three">
-                        <template #icon><Settings class="w-4 h-4" /></template>
-                        <vort-menu-item item-key="3">Option 1</vort-menu-item>
-                        <vort-menu-item item-key="4">Option 2</vort-menu-item>
-                        <vort-menu-item item-key="5">Option 3</vort-menu-item>
-                    </vort-sub-menu>
-                    <vort-sub-menu item-key="sub2" title="Navigation Four">
-                        <template #icon><Folder class="w-4 h-4" /></template>
-                        <vort-menu-item item-key="6">Option 4</vort-menu-item>
-                        <vort-menu-item item-key="7">Option 5</vort-menu-item>
-                    </vort-sub-menu>
-                </vort-menu>
-            </div>
-        </DemoBox>
+                <!-- 可折叠菜单 -->
+                <DemoBox title="可折叠菜单" description="内嵌菜单可以被缩起/展开。折叠后 hover 显示 tooltip，点击子菜单会弹出。" :code="collapsedCode">
+                    <div>
+                        <vort-button style="margin-bottom: 16px" @click="inlineCollapsed = !inlineCollapsed">
+                            {{ inlineCollapsed ? "展开" : "收起" }}
+                        </vort-button>
+                        <div :style="{ width: inlineCollapsed ? '56px' : '256px', transition: 'width 0.2s' }">
+                            <vort-menu
+                                v-model:selected-keys="selectedKeys4"
+                                v-model:open-keys="openKeys2"
+                                mode="inline"
+                                theme="dark"
+                                :inline-collapsed="inlineCollapsed"
+                            >
+                                <vort-menu-item item-key="1" title="Option 1">
+                                    <template #icon><Home class="w-4 h-4" /></template>
+                                    Option 1
+                                </vort-menu-item>
+                                <vort-menu-item item-key="2" title="Option 2">
+                                    <template #icon><Settings class="w-4 h-4" /></template>
+                                    Option 2
+                                </vort-menu-item>
+                                <vort-sub-menu item-key="sub1" title="Navigation One">
+                                    <template #icon><User class="w-4 h-4" /></template>
+                                    <vort-menu-item item-key="3">Option 3</vort-menu-item>
+                                    <vort-menu-item item-key="4">Option 4</vort-menu-item>
+                                </vort-sub-menu>
+                                <vort-sub-menu item-key="sub2" title="Navigation Two">
+                                    <template #icon><Folder class="w-4 h-4" /></template>
+                                    <vort-menu-item item-key="5">Option 5</vort-menu-item>
+                                    <vort-menu-item item-key="6">Option 6</vort-menu-item>
+                                </vort-sub-menu>
+                            </vort-menu>
+                        </div>
+                    </div>
+                </DemoBox>
 
-        <!-- 可折叠菜单 -->
-        <DemoBox title="可折叠菜单" description="内嵌菜单可以被缩起/展开。折叠后 hover 显示 tooltip，点击子菜单会弹出。" :code="collapsedCode">
-            <div>
-                <vort-button style="margin-bottom: 16px" @click="inlineCollapsed = !inlineCollapsed">
-                    {{ inlineCollapsed ? "展开" : "收起" }}
-                </vort-button>
-                <div :style="{ width: inlineCollapsed ? '56px' : '256px', transition: 'width 0.2s' }">
-                    <vort-menu v-model:selected-keys="selectedKeys4" v-model:open-keys="openKeys2" mode="inline" theme="dark" :inline-collapsed="inlineCollapsed">
-                        <vort-menu-item item-key="1" title="Option 1">
-                            <template #icon><Home class="w-4 h-4" /></template>
-                            Option 1
-                        </vort-menu-item>
-                        <vort-menu-item item-key="2" title="Option 2">
-                            <template #icon><Settings class="w-4 h-4" /></template>
-                            Option 2
-                        </vort-menu-item>
-                        <vort-sub-menu item-key="sub1" title="Navigation One">
-                            <template #icon><User class="w-4 h-4" /></template>
-                            <vort-menu-item item-key="3">Option 3</vort-menu-item>
-                            <vort-menu-item item-key="4">Option 4</vort-menu-item>
-                        </vort-sub-menu>
-                        <vort-sub-menu item-key="sub2" title="Navigation Two">
-                            <template #icon><Folder class="w-4 h-4" /></template>
-                            <vort-menu-item item-key="5">Option 5</vort-menu-item>
-                            <vort-menu-item item-key="6">Option 6</vort-menu-item>
-                        </vort-sub-menu>
-                    </vort-menu>
-                </div>
-            </div>
-        </DemoBox>
+                <!-- 暗色主题 -->
+                <DemoBox title="暗色主题" description="内建的暗色主题。" :code="darkCode">
+                    <div style="width: 256px">
+                        <vort-menu v-model:selected-keys="selectedKeys" v-model:open-keys="openKeys" mode="inline" theme="dark">
+                            <vort-menu-item item-key="1">
+                                <template #icon><Home class="w-4 h-4" /></template>
+                                Option 1
+                            </vort-menu-item>
+                            <vort-menu-item item-key="2">
+                                <template #icon><Settings class="w-4 h-4" /></template>
+                                Option 2
+                            </vort-menu-item>
+                            <vort-sub-menu item-key="sub1" title="Navigation">
+                                <template #icon><User class="w-4 h-4" /></template>
+                                <vort-menu-item item-key="3">Option 3</vort-menu-item>
+                                <vort-menu-item item-key="4">Option 4</vort-menu-item>
+                            </vort-sub-menu>
+                        </vort-menu>
+                    </div>
+                </DemoBox>
 
-        <!-- 暗色主题 -->
-        <DemoBox title="暗色主题" description="内建的暗色主题。" :code="darkCode">
-            <div style="width: 256px">
-                <vort-menu v-model:selected-keys="selectedKeys" v-model:open-keys="openKeys" mode="inline" theme="dark">
-                    <vort-menu-item item-key="1">
-                        <template #icon><Home class="w-4 h-4" /></template>
-                        Option 1
-                    </vort-menu-item>
-                    <vort-menu-item item-key="2">
-                        <template #icon><Settings class="w-4 h-4" /></template>
-                        Option 2
-                    </vort-menu-item>
-                    <vort-sub-menu item-key="sub1" title="Navigation">
-                        <template #icon><User class="w-4 h-4" /></template>
-                        <vort-menu-item item-key="3">Option 3</vort-menu-item>
-                        <vort-menu-item item-key="4">Option 4</vort-menu-item>
-                    </vort-sub-menu>
-                </vort-menu>
-            </div>
-        </DemoBox>
+                <!-- 分组菜单 -->
+                <DemoBox title="分组菜单" description="使用 MenuItemGroup 进行菜单分组。" :code="groupCode">
+                    <div style="width: 256px">
+                        <vort-menu v-model:selected-keys="selectedKeys" mode="vertical">
+                            <vort-menu-item-group title="Group 1">
+                                <vort-menu-item item-key="g1-1">
+                                    <template #icon><Star class="w-4 h-4" /></template>
+                                    Option 1
+                                </vort-menu-item>
+                                <vort-menu-item item-key="g1-2">
+                                    <template #icon><Heart class="w-4 h-4" /></template>
+                                    Option 2
+                                </vort-menu-item>
+                            </vort-menu-item-group>
+                            <vort-menu-divider />
+                            <vort-menu-item-group title="Group 2">
+                                <vort-menu-item item-key="g2-1">
+                                    <template #icon><Bell class="w-4 h-4" /></template>
+                                    Option 3
+                                </vort-menu-item>
+                                <vort-menu-item item-key="g2-2">
+                                    <template #icon><Search class="w-4 h-4" /></template>
+                                    Option 4
+                                </vort-menu-item>
+                            </vort-menu-item-group>
+                        </vort-menu>
+                    </div>
+                </DemoBox>
 
-        <!-- 分组菜单 -->
-        <DemoBox title="分组菜单" description="使用 MenuItemGroup 进行菜单分组。" :code="groupCode">
-            <div style="width: 256px">
-                <vort-menu v-model:selected-keys="selectedKeys" mode="vertical">
-                    <vort-menu-item-group title="Group 1">
-                        <vort-menu-item item-key="g1-1">
-                            <template #icon><Star class="w-4 h-4" /></template>
-                            Option 1
-                        </vort-menu-item>
-                        <vort-menu-item item-key="g1-2">
-                            <template #icon><Heart class="w-4 h-4" /></template>
-                            Option 2
-                        </vort-menu-item>
-                    </vort-menu-item-group>
-                    <vort-menu-divider />
-                    <vort-menu-item-group title="Group 2">
-                        <vort-menu-item item-key="g2-1">
-                            <template #icon><Bell class="w-4 h-4" /></template>
-                            Option 3
-                        </vort-menu-item>
-                        <vort-menu-item item-key="g2-2">
-                            <template #icon><Search class="w-4 h-4" /></template>
-                            Option 4
-                        </vort-menu-item>
-                    </vort-menu-item-group>
-                </vort-menu>
-            </div>
-        </DemoBox>
-
-        <!-- 禁用和危险项 -->
-        <DemoBox title="禁用和危险项" description="菜单项可以设置禁用状态或危险样式。" :code="disabledDangerCode">
-            <div style="width: 256px">
-                <vort-menu v-model:selected-keys="selectedKeys" mode="inline">
-                    <vort-menu-item item-key="normal">
-                        <template #icon><FileText class="w-4 h-4" /></template>
-                        Normal Item
-                    </vort-menu-item>
-                    <vort-menu-item item-key="disabled" disabled>
-                        <template #icon><Plus class="w-4 h-4" /></template>
-                        Disabled Item
-                    </vort-menu-item>
-                    <vort-menu-divider />
-                    <vort-menu-item item-key="danger" danger> Danger Item </vort-menu-item>
-                </vort-menu>
-            </div>
-        </DemoBox>
+                <!-- 禁用和危险项 -->
+                <DemoBox title="禁用和危险项" description="菜单项可以设置禁用状态或危险样式。" :code="disabledDangerCode">
+                    <div style="width: 256px">
+                        <vort-menu v-model:selected-keys="selectedKeys" mode="inline">
+                            <vort-menu-item item-key="normal">
+                                <template #icon><FileText class="w-4 h-4" /></template>
+                                Normal Item
+                            </vort-menu-item>
+                            <vort-menu-item item-key="disabled" disabled>
+                                <template #icon><Plus class="w-4 h-4" /></template>
+                                Disabled Item
+                            </vort-menu-item>
+                            <vort-menu-divider />
+                            <vort-menu-item item-key="danger" danger> Danger Item </vort-menu-item>
+                        </vort-menu>
+                    </div>
+                </DemoBox>
             </div>
         </section>
 
@@ -562,10 +568,16 @@ const slotsData = [
                 </thead>
                 <tbody>
                     <tr v-for="item in propsData" :key="item.prop">
-                        <td><code>{{ item.prop }}</code></td>
+                        <td>
+                            <code>{{ item.prop }}</code>
+                        </td>
                         <td>{{ item.desc }}</td>
-                        <td><code>{{ item.type }}</code></td>
-                        <td><code>{{ item.default }}</code></td>
+                        <td>
+                            <code>{{ item.type }}</code>
+                        </td>
+                        <td>
+                            <code>{{ item.default }}</code>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -582,10 +594,16 @@ const slotsData = [
                 </thead>
                 <tbody>
                     <tr v-for="item in menuItemPropsData" :key="item.prop">
-                        <td><code>{{ item.prop }}</code></td>
+                        <td>
+                            <code>{{ item.prop }}</code>
+                        </td>
                         <td>{{ item.desc }}</td>
-                        <td><code>{{ item.type }}</code></td>
-                        <td><code>{{ item.default }}</code></td>
+                        <td>
+                            <code>{{ item.type }}</code>
+                        </td>
+                        <td>
+                            <code>{{ item.default }}</code>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -602,10 +620,16 @@ const slotsData = [
                 </thead>
                 <tbody>
                     <tr v-for="item in subMenuPropsData" :key="item.prop">
-                        <td><code>{{ item.prop }}</code></td>
+                        <td>
+                            <code>{{ item.prop }}</code>
+                        </td>
                         <td>{{ item.desc }}</td>
-                        <td><code>{{ item.type }}</code></td>
-                        <td><code>{{ item.default }}</code></td>
+                        <td>
+                            <code>{{ item.type }}</code>
+                        </td>
+                        <td>
+                            <code>{{ item.default }}</code>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -621,9 +645,13 @@ const slotsData = [
                 </thead>
                 <tbody>
                     <tr v-for="item in eventsData" :key="item.event">
-                        <td><code>{{ item.event }}</code></td>
+                        <td>
+                            <code>{{ item.event }}</code>
+                        </td>
                         <td>{{ item.desc }}</td>
-                        <td><code>{{ item.params }}</code></td>
+                        <td>
+                            <code>{{ item.params }}</code>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -638,7 +666,9 @@ const slotsData = [
                 </thead>
                 <tbody>
                     <tr v-for="item in slotsData" :key="item.slot">
-                        <td><code>{{ item.slot }}</code></td>
+                        <td>
+                            <code>{{ item.slot }}</code>
+                        </td>
                         <td>{{ item.desc }}</td>
                     </tr>
                 </tbody>

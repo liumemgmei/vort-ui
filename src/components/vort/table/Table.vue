@@ -21,10 +21,13 @@ import { TABLE_INJECTION_KEY } from "./types";
 
 defineOptions({ name: "VortTable" });
 
-const slots = useSlots();
+const _slots = useSlots();
 
 // 国际化
 const { t } = useLocale("Table");
+
+/** 内部树/扁平化用到的行类型（可按 dataIndex 取值）；对外 props 默认泛型为 any，避免各行数据无法赋给 Record<string, unknown> */
+type TableRecord = Record<string, unknown>;
 
 /** Vort Table - 表格组件 */
 
@@ -43,8 +46,8 @@ interface Props<T = any> {
     loading?: boolean;
     /** 分页配置，设为 false 关闭分页 */
     pagination?: TablePagination | false;
-    /** 行选择配置 */
-    rowSelection?: TableRowSelection<T>;
+    /** 行选择配置（使用 any 避免与各页面具体行类型不兼容的逆变问题） */
+    rowSelection?: TableRowSelection<any>;
     /** 滚动配置 */
     scroll?: TableScroll;
     /** 表格包装器最小高度（用于覆盖全局样式，如主题中 min-height: 300px） */
@@ -94,6 +97,7 @@ const props = withDefaults(defineProps<Props>(), {
     bordered: false,
     size: "middle",
     loading: false,
+    // eslint-disable-next-line vue/require-valid-default-prop
     pagination: () => ({ current: 1, pageSize: 10, total: 0, showPagination: true }),
     minHeight: undefined,
     maxHeight: undefined,
@@ -155,9 +159,13 @@ onUnmounted(() => {
 
 const emit = defineEmits<{
     /** 分页、排序、筛选变化时触发 */
-    change: [pagination: { current: number; pageSize: number }, filters: Record<string, any>, sorter: { field: string; order: "ascend" | "descend" | null }];
+    change: [
+        pagination: { current: number; pageSize: number },
+        filters: Record<string, unknown>,
+        sorter: { field: string; order: "ascend" | "descend" | null }
+    ];
     /** 行展开变化时触发 */
-    expand: [expanded: boolean, record: any];
+    expand: [expanded: boolean, record: TableRecord];
     /** 展开行 keys 变化时触发 */
     "update:expandedRowKeys": [keys: (string | number)[]];
     /** 行选择变化时触发 */
@@ -352,7 +360,7 @@ const internalExpandedKeys = ref<Set<string | number>>(new Set(props.defaultExpa
 const treeNodeStates = reactive<Map<string | number, TreeNodeState>>(new Map());
 
 // 懒加载的子节点数据
-const lazyLoadedChildren = reactive<Map<string | number, any[]>>(new Map());
+const lazyLoadedChildren = reactive<Map<string | number, TableRecord[]>>(new Map());
 
 // 监听外部 expandedRowKeys 变化
 watch(
@@ -410,7 +418,7 @@ const normalizeHasChildren = (value: unknown): boolean | undefined => {
 };
 
 // 判断行是否有子节点
-const rowHasChildren = (record: any): boolean => {
+const rowHasChildren = (record: TableRecord): boolean => {
     if (isTreeExplicitlyDisabled.value) {
         return false;
     }
@@ -427,7 +435,7 @@ const rowHasChildren = (record: any): boolean => {
 };
 
 // 获取行的子节点（包括懒加载的）
-const getRowChildren = (record: any): any[] => {
+const getRowChildren = (record: TableRecord): TableRecord[] => {
     const key = getRowKey(record, 0);
     // 优先返回懒加载的数据
     if (lazyLoadedChildren.has(key)) {
@@ -435,11 +443,12 @@ const getRowChildren = (record: any): any[] => {
     }
     // 否则返回原始数据中的 children
     const { childrenField } = treeConfig.value;
-    return record[childrenField] || [];
+    const raw = record[childrenField as string];
+    return Array.isArray(raw) ? (raw as TableRecord[]) : [];
 };
 
 // 判断行是否展开
-const isRowExpanded = (record: any, index: number): boolean => {
+const isRowExpanded = (record: TableRecord, index: number): boolean => {
     const key = getRowKey(record, index);
     return internalExpandedKeys.value.has(key);
 };
@@ -458,7 +467,7 @@ const getTreeNodeState = (key: string | number): TreeNodeState => {
 };
 
 // 展开/折叠行
-const toggleRowExpand = async (record: any, index: number) => {
+const toggleRowExpand = async (record: TableRecord, index: number) => {
     if (isTreeExplicitlyDisabled.value) {
         return;
     }
@@ -502,15 +511,17 @@ const refreshChildren = async (parentKey: string | number) => {
     }
 
     // 找到对应的行数据
-    const findRecord = (data: any[], key: string | number): any => {
+    const findRecord = (data: TableRecord[], key: string | number): TableRecord | null => {
         for (const record of data) {
             const recordKey = getRowKey(record, 0);
             if (recordKey === key) {
                 return record;
             }
             const { childrenField } = treeConfig.value;
-            const children = record[childrenField] || lazyLoadedChildren.get(recordKey);
-            if (children?.length) {
+            const fromRecord = record[childrenField as string];
+            const combined = (Array.isArray(fromRecord) ? fromRecord : undefined) || lazyLoadedChildren.get(recordKey);
+            const children = Array.isArray(combined) ? combined : [];
+            if (children.length) {
                 const found = findRecord(children, key);
                 if (found) return found;
             }
@@ -537,14 +548,14 @@ const refreshChildren = async (parentKey: string | number) => {
 
 // 扁平化树形数据用于渲染
 interface FlattenedRow {
-    record: any;
+    record: TableRecord;
     index: number;
     level: number;
     isLast: boolean;
     parentKey?: string | number;
 }
 
-const flattenTreeData = (data: any[], level: number = 0, parentKey?: string | number): FlattenedRow[] => {
+const flattenTreeData = (data: TableRecord[], level: number = 0, parentKey?: string | number): FlattenedRow[] => {
     if (isTreeExplicitlyDisabled.value) {
         return data.map((record, index) => ({
             record,
@@ -641,11 +652,15 @@ watch(
 );
 
 // 获取行的 key
-const getRowKey = (record: any, index: number): string | number => {
+const getRowKey = (record: TableRecord, index: number): string | number => {
     if (typeof props.rowKey === "function") {
         return props.rowKey(record);
     }
-    return record[props.rowKey] ?? index;
+    const rk = record[props.rowKey as string];
+    if (typeof rk === "string" || typeof rk === "number") {
+        return rk;
+    }
+    return index;
 };
 
 // 排序后的数据
@@ -672,7 +687,7 @@ const sortedData = computed(() => {
     const sorterFn =
         typeof sortColumn.sorter === "function"
             ? sortColumn.sorter
-            : (a: any, b: any) => {
+            : (a: TableRecord, b: TableRecord) => {
                   const aVal = getCellValue(a, sortColumn);
                   const bVal = getCellValue(b, sortColumn);
                   if (aVal === bVal) return 0;
@@ -768,7 +783,7 @@ const totalCount = computed(() => {
 });
 
 // 总页数
-const totalPages = computed(() => {
+const _totalPages = computed(() => {
     return Math.ceil(totalCount.value / internalPageSize.value);
 });
 
@@ -842,6 +857,7 @@ const isAllSelected = computed(() => {
     let hasEnabled = false;
     for (let index = 0; index < paginatedData.value.length; index++) {
         const record = paginatedData.value[index];
+        if (record === undefined) continue;
         const checkboxProps = props.rowSelection?.getCheckboxProps?.(record);
         if (checkboxProps?.disabled) continue;
         hasEnabled = true;
@@ -884,7 +900,7 @@ const handleSelectAll = (checked: boolean) => {
     });
 
     let newSelectedKeys: (string | number)[];
-    let selectedRows: any[];
+    let selectedRows: TableRecord[];
 
     if (checked) {
         // 全选：添加所有未禁用的行
@@ -905,7 +921,7 @@ const handleSelectAll = (checked: boolean) => {
 };
 
 // 单行选择
-const handleSelect = (record: any, checked: boolean, index: number) => {
+const handleSelect = (record: TableRecord, checked: boolean, index: number) => {
     const key = getRowKey(record, index);
 
     let newSelectedKeys: (string | number)[];
@@ -930,25 +946,29 @@ const handleSelect = (record: any, checked: boolean, index: number) => {
 };
 
 // 行是否选中
-const isRowSelected = (record: any, index: number): boolean => {
+const isRowSelected = (record: TableRecord, index: number): boolean => {
     const key = getRowKey(record, index);
     return selectedRowKeys.value.includes(key);
 };
 
 // 获取单元格值
-const getCellValue = (record: any, column: TableColumn): any => {
+const getCellValue = (record: TableRecord, column: TableColumn): unknown => {
     if (!column.dataIndex) return "";
     // 支持嵌套字段，如 "user.name"
     const keys = column.dataIndex.split(".");
-    let value = record;
+    let value: unknown = record;
     for (const key of keys) {
-        value = value?.[key];
+        if (value !== null && typeof value === "object") {
+            value = (value as TableRecord)[key];
+        } else {
+            return undefined;
+        }
     }
     return value;
 };
 
 // 获取行类名
-const getRowClassName = (record: any, index: number): string => {
+const getRowClassName = (record: TableRecord, index: number): string => {
     if (!props.rowClassName) return "";
     if (typeof props.rowClassName === "function") {
         return props.rowClassName(record, index);
@@ -1159,7 +1179,11 @@ const fixedMinWidthLocks = computed<Map<string, number>>(() => {
 
     // Collect column info: separate fixed-width vs flexible columns
     let fixedTotal = selectionWidth;
-    interface FlexCol { key: string; minW: number; locked: boolean }
+    interface FlexCol {
+        key: string;
+        minW: number;
+        locked: boolean;
+    }
     const flexCols: FlexCol[] = [];
 
     for (const col of cols) {
@@ -1441,11 +1465,7 @@ defineExpose({
                             width: rowSelection.columnWidth || '48px'
                         }"
                     />
-                    <col
-                        v-for="column in leafColumns"
-                        :key="column.key || column.dataIndex || column.title"
-                        :style="getColStyle(column)"
-                    />
+                    <col v-for="column in leafColumns" :key="column.key || column.dataIndex || column.title" :style="getColStyle(column)" />
                 </colgroup>
                 <!-- 表头 -->
                 <thead v-if="showHeader" class="vort-table-thead">

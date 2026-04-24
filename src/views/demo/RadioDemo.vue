@@ -341,11 +341,7 @@ const handleGroupChange = (event: Event) => {
                     </div>
                 </DemoBox>
 
-                <DemoBox
-                    title="Change 事件"
-                    description="`change` 当前用于通知交互事件本身；最新选中值请直接通过 `v-model` 读取。"
-                    :code="changeCode"
-                >
+                <DemoBox title="Change 事件" description="`change` 当前用于通知交互事件本身；最新选中值请直接通过 `v-model` 读取。" :code="changeCode">
                     <div class="demo-col">
                         <vort-radio-group v-model="changeValue" @change="handleGroupChange">
                             <vort-radio value="a">A</vort-radio>

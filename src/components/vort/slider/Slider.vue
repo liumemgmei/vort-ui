@@ -268,10 +268,12 @@ const handleMouseMove = (e: MouseEvent) => {
 
     // 强制更新 Tooltip 位置
     nextTick(() => {
-        if (index === 0 && tooltipRef0.value) {
-            (tooltipRef0.value as any).updatePosition?.();
-        } else if (index === 1 && tooltipRef1.value) {
-            (tooltipRef1.value as any).updatePosition?.();
+        const t0 = tooltipRef0.value as InstanceType<typeof Tooltip> | null;
+        const t1 = tooltipRef1.value as InstanceType<typeof Tooltip> | null;
+        if (index === 0 && t0 && "updatePosition" in t0) {
+            (t0 as { updatePosition?: () => void }).updatePosition?.();
+        } else if (index === 1 && t1 && "updatePosition" in t1) {
+            (t1 as { updatePosition?: () => void }).updatePosition?.();
         }
     });
 };
@@ -342,14 +344,14 @@ const handleKeyDown = (e: KeyboardEvent, index: number) => {
 
 // 触发事件
 const emitChange = () => {
-    const value = props.range ? [...internalValue.value] : internalValue.value[1];
-    emit("update:modelValue", value as any);
-    emit("change", value as any);
+    const value = props.range ? ([internalValue.value[0], internalValue.value[1]] as [number, number]) : internalValue.value[1];
+    emit("update:modelValue", value);
+    emit("change", value);
 };
 
 const emitAfterChange = () => {
-    const value = props.range ? [...internalValue.value] : internalValue.value[1];
-    emit("afterChange", value as any);
+    const value = props.range ? ([internalValue.value[0], internalValue.value[1]] as [number, number]) : internalValue.value[1];
+    emit("afterChange", value);
 };
 
 // 格式化 Tooltip 显示内容

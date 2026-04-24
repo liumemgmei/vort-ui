@@ -400,7 +400,9 @@ const handleContextMenu = (e: MouseEvent) => {
 const getMenuItems = (): HTMLElement[] => {
     if (!contentRef.value) return [];
     return Array.from(
-        contentRef.value.querySelectorAll<HTMLElement>('[role="menuitem"]:not([data-disabled]), [role="menuitemcheckbox"]:not([data-disabled]), [role="menuitemradio"]:not([data-disabled])')
+        contentRef.value.querySelectorAll<HTMLElement>(
+            '[role="menuitem"]:not([data-disabled]), [role="menuitemcheckbox"]:not([data-disabled]), [role="menuitemradio"]:not([data-disabled])'
+        )
     );
 };
 
@@ -484,7 +486,14 @@ defineExpose({
 </script>
 
 <template>
-    <span ref="triggerRef" :class="triggerClasses" @click="handleTriggerClick" @contextmenu="handleContextMenu" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
+    <span
+        ref="triggerRef"
+        :class="triggerClasses"
+        @click="handleTriggerClick"
+        @contextmenu="handleContextMenu"
+        @mouseenter="handleMouseEnter"
+        @mouseleave="handleMouseLeave"
+    >
         <slot />
     </span>
 
@@ -519,7 +528,15 @@ defineExpose({
             >
                 <svg width="12" height="6" viewBox="0 0 12 6" fill="#fff">
                     <path
-                        :d="actualSide === 'bottom' ? 'M0 6L6 0L12 6' : actualSide === 'top' ? 'M0 0L6 6L12 0' : actualSide === 'left' ? 'M0 0L6 6L0 12' : 'M6 0L0 6L6 12'"
+                        :d="
+                            actualSide === 'bottom'
+                                ? 'M0 6L6 0L12 6'
+                                : actualSide === 'top'
+                                  ? 'M0 0L6 6L12 0'
+                                  : actualSide === 'left'
+                                    ? 'M0 0L6 6L0 12'
+                                    : 'M6 0L0 6L6 12'
+                        "
                     />
                 </svg>
             </div>

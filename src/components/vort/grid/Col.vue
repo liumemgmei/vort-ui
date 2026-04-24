@@ -242,7 +242,9 @@ const colStyle = computed(() => {
         display: block;
         flex: 0 0 calc(var(--col-xl-span, var(--col-lg-span, var(--col-md-span, var(--col-sm-span, var(--col-xs-span, var(--col-span, 24)))))) / 24 * 100%);
         max-width: calc(var(--col-xl-span, var(--col-lg-span, var(--col-md-span, var(--col-sm-span, var(--col-xs-span, var(--col-span, 24)))))) / 24 * 100%);
-        margin-left: calc(var(--col-xl-offset, var(--col-lg-offset, var(--col-md-offset, var(--col-sm-offset, var(--col-xs-offset, var(--col-offset, 0)))))) / 24 * 100%);
+        margin-left: calc(
+            var(--col-xl-offset, var(--col-lg-offset, var(--col-md-offset, var(--col-sm-offset, var(--col-xs-offset, var(--col-offset, 0)))))) / 24 * 100%
+        );
         order: var(--col-xl-order, var(--col-lg-order, var(--col-md-order, var(--col-sm-order, var(--col-xs-order, var(--col-order, 0))))));
         right: calc(var(--col-xl-pull, var(--col-lg-pull, var(--col-md-pull, var(--col-sm-pull, var(--col-xs-pull, var(--col-pull, 0)))))) / 24 * 100%);
         left: calc(var(--col-xl-push, var(--col-lg-push, var(--col-md-push, var(--col-sm-push, var(--col-xs-push, var(--col-push, 0)))))) / 24 * 100%);
@@ -257,12 +259,34 @@ const colStyle = computed(() => {
 @media (min-width: 1600px) {
     .vort-col-sized.vort-col-xxl {
         display: block;
-        flex: 0 0 calc(var(--col-xxl-span, var(--col-xl-span, var(--col-lg-span, var(--col-md-span, var(--col-sm-span, var(--col-xs-span, var(--col-span, 24))))))) / 24 * 100%);
-        max-width: calc(var(--col-xxl-span, var(--col-xl-span, var(--col-lg-span, var(--col-md-span, var(--col-sm-span, var(--col-xs-span, var(--col-span, 24))))))) / 24 * 100%);
-        margin-left: calc(var(--col-xxl-offset, var(--col-xl-offset, var(--col-lg-offset, var(--col-md-offset, var(--col-sm-offset, var(--col-xs-offset, var(--col-offset, 0))))))) / 24 * 100%);
-        order: var(--col-xxl-order, var(--col-xl-order, var(--col-lg-order, var(--col-md-order, var(--col-sm-order, var(--col-xs-order, var(--col-order, 0)))))));
-        right: calc(var(--col-xxl-pull, var(--col-xl-pull, var(--col-lg-pull, var(--col-md-pull, var(--col-sm-pull, var(--col-xs-pull, var(--col-pull, 0))))))) / 24 * 100%);
-        left: calc(var(--col-xxl-push, var(--col-xl-push, var(--col-lg-push, var(--col-md-push, var(--col-sm-push, var(--col-xs-push, var(--col-push, 0))))))) / 24 * 100%);
+        flex: 0 0
+            calc(
+                var(--col-xxl-span, var(--col-xl-span, var(--col-lg-span, var(--col-md-span, var(--col-sm-span, var(--col-xs-span, var(--col-span, 24))))))) /
+                    24 * 100%
+            );
+        max-width: calc(
+            var(--col-xxl-span, var(--col-xl-span, var(--col-lg-span, var(--col-md-span, var(--col-sm-span, var(--col-xs-span, var(--col-span, 24))))))) / 24 *
+                100%
+        );
+        margin-left: calc(
+            var(
+                    --col-xxl-offset,
+                    var(--col-xl-offset, var(--col-lg-offset, var(--col-md-offset, var(--col-sm-offset, var(--col-xs-offset, var(--col-offset, 0))))))
+                ) /
+                24 * 100%
+        );
+        order: var(
+            --col-xxl-order,
+            var(--col-xl-order, var(--col-lg-order, var(--col-md-order, var(--col-sm-order, var(--col-xs-order, var(--col-order, 0))))))
+        );
+        right: calc(
+            var(--col-xxl-pull, var(--col-xl-pull, var(--col-lg-pull, var(--col-md-pull, var(--col-sm-pull, var(--col-xs-pull, var(--col-pull, 0))))))) / 24 *
+                100%
+        );
+        left: calc(
+            var(--col-xxl-push, var(--col-xl-push, var(--col-lg-push, var(--col-md-push, var(--col-sm-push, var(--col-xs-push, var(--col-push, 0))))))) / 24 *
+                100%
+        );
     }
 
     .vort-col-xxl.vort-col-xxl-hidden {

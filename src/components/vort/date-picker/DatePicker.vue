@@ -175,19 +175,19 @@ const parseDate = (value: unknown): Date | null => {
     if (value instanceof Date) return isNaN(value.getTime()) ? null : value;
 
     // 兼容 dayjs 等库（toDate / $d）
-    if (typeof value === "object") {
-        const anyValue = value as any;
-        if (typeof anyValue?.toDate === "function") {
-            const d = anyValue.toDate();
+    if (typeof value === "object" && value !== null) {
+        const obj = value as { toDate?: () => Date; $d?: Date };
+        if (typeof obj.toDate === "function") {
+            const d = obj.toDate();
             return d instanceof Date && !isNaN(d.getTime()) ? d : null;
         }
-        if (anyValue?.$d instanceof Date) {
-            const d = anyValue.$d as Date;
+        if (obj.$d instanceof Date) {
+            const d = obj.$d;
             return !isNaN(d.getTime()) ? d : null;
         }
     }
 
-    const d = new Date(value as any);
+    const d = new Date(value as string | number | Date);
     return isNaN(d.getTime()) ? null : d;
 };
 
@@ -573,7 +573,7 @@ const calendarDays = computed(() => {
             date,
             isCurrentMonth: false,
             isToday: date.getTime() === today.getTime(),
-            isSelected: selectedDate.value ? date.getTime() === selectedDate.value.setHours(0, 0, 0, 0) : false,
+            isSelected: selectedDate.value ? date.getTime() === new Date(selectedDate.value).setHours(0, 0, 0, 0) : false,
             isDisabled: props.disabledDate ? props.disabledDate(date) : false
         });
     }
@@ -877,12 +877,7 @@ defineExpose({
         <!-- 后缀图标 -->
         <span class="vort-datepicker-suffix">
             <!-- 清除按钮 -->
-            <span
-                class="vort-datepicker-clear"
-                :class="{ 'vort-datepicker-clear-visible': showClearButton }"
-                @click="handleClear"
-                @mousedown.prevent
-            >
+            <span class="vort-datepicker-clear" :class="{ 'vort-datepicker-clear-visible': showClearButton }" @click="handleClear" @mousedown.prevent>
                 <CloseCircleFilled />
             </span>
         </span>
@@ -929,7 +924,9 @@ defineExpose({
                                     </button>
 
                                     <div class="vort-datepicker-header-view">
-                                        <button type="button" class="vort-datepicker-header-btn" @click="panelMode = 'year'">{{ panelYear }}{{ dpLocale.year_suffix }}</button>
+                                        <button type="button" class="vort-datepicker-header-btn" @click="panelMode = 'year'">
+                                            {{ panelYear }}{{ dpLocale.year_suffix }}
+                                        </button>
                                         <button type="button" class="vort-datepicker-header-btn" @click="panelMode = 'month'">{{ months[panelMonth] }}</button>
                                     </div>
 
@@ -1042,11 +1039,11 @@ defineExpose({
 
                     <!-- 底部 -->
                     <div v-if="showTime" class="vort-datepicker-footer vort-datepicker-footer-showtime">
-                        <VortButton v-if="showNow" variant="text" size="small" @click="selectNow">{{ dpT('now') }}</VortButton>
-                        <VortButton variant="primary" size="small" @click="confirmSelection">{{ dpT('ok') }}</VortButton>
+                        <VortButton v-if="showNow" variant="text" size="small" @click="selectNow">{{ dpT("now") }}</VortButton>
+                        <VortButton variant="primary" size="small" @click="confirmSelection">{{ dpT("ok") }}</VortButton>
                     </div>
                     <div v-else-if="showToday && picker === 'date'" class="vort-datepicker-footer">
-                        <button type="button" class="vort-datepicker-today-btn" @click="selectToday">{{ dpT('today') }}</button>
+                        <button type="button" class="vort-datepicker-today-btn" @click="selectToday">{{ dpT("today") }}</button>
                     </div>
                 </template>
 
@@ -1058,7 +1055,9 @@ defineExpose({
                         </button>
 
                         <div class="vort-datepicker-header-view">
-                            <button type="button" class="vort-datepicker-header-btn" @click="panelMode = 'year'">{{ panelYear }}{{ dpLocale.year_suffix }}</button>
+                            <button type="button" class="vort-datepicker-header-btn" @click="panelMode = 'year'">
+                                {{ panelYear }}{{ dpLocale.year_suffix }}
+                            </button>
                         </div>
 
                         <button type="button" class="vort-datepicker-nav-btn" @click="nextYear">

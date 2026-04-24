@@ -73,7 +73,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
     "update:activeKey": [key: string];
     change: [key: string];
-    tabClick: [key: string, event: MouseEvent];
+    tabClick: [key: string, event: MouseEvent | KeyboardEvent];
     edit: [targetKey: string | MouseEvent, action: "add" | "remove"];
 }>();
 
@@ -178,7 +178,7 @@ onMounted(() => {
 });
 
 // 切换标签
-const handleTabClick = (key: string, event: MouseEvent) => {
+const handleTabClick = (key: string, event: MouseEvent | KeyboardEvent) => {
     const pane = tabPanes.value.find((p) => p.key === key);
     if (pane?.disabled) return;
 
@@ -249,7 +249,7 @@ const getTabStyle = (index: number) => {
                         :aria-disabled="pane.disabled"
                         :tabindex="pane.disabled ? -1 : 0"
                         @click="handleTabClick(pane.key, $event)"
-                        @keydown.enter="handleTabClick(pane.key, $event as any)"
+                        @keydown.enter="handleTabClick(pane.key, $event)"
                     >
                         <!-- 自定义标签内容 -->
                         <!-- 优先级: #tab-{key} 插槽 > TabPane 的 #tab 插槽 > tab 属性 -->

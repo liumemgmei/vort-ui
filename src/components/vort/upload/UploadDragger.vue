@@ -43,6 +43,8 @@ interface Props {
     class?: string;
     /** 高度 */
     height?: string | number;
+    /** 自定义提示文字（未传时不渲染提示行；如需默认提示，请由调用方显式传入或通过 default slot 自定义内容） */
+    hint?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -143,9 +145,7 @@ const heightStyle = computed(() => {
                         <InboxOutlined />
                     </p>
                     <p class="vort-upload-dragger-text">{{ placeholder || "Click or drag file to this area to upload" }}</p>
-                    <p class="vort-upload-dragger-hint">
-                        Support for a single or bulk upload. Strictly prohibited from uploading company data or other banned files.
-                    </p>
+                    <p v-if="hint" class="vort-upload-dragger-hint">{{ hint }}</p>
                 </div>
             </slot>
         </div>
@@ -203,7 +203,7 @@ const heightStyle = computed(() => {
 
 .vort-upload-dragger-icon {
     margin: 0;
-    font-size: 48px;
+    font-size: 32px;
     color: var(--vort-primary);
 }
 

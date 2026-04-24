@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted, nextTick, inject } from "vue";
+import { ref, computed, onMounted, onUnmounted, nextTick, inject } from "vue";
 import {
     CloseOutlined,
     ZoomInOutlined,
@@ -461,7 +461,6 @@ const handleMouseUp = () => {
     // 启动惯性动画
     startInertia();
 };
-
 
 // 点击遮罩关闭
 const handleMaskClick = () => {

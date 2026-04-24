@@ -98,7 +98,9 @@ const closeThis = () => {
 };
 
 selectInstances.add(closeThis);
-onBeforeUnmount(() => { selectInstances.delete(closeThis); });
+onBeforeUnmount(() => {
+    selectInstances.delete(closeThis);
+});
 
 // ============ 子组件选项注册机制 ============
 provide<SelectOptionContext>("vortSelectContext", {
@@ -170,7 +172,8 @@ const filteredOptions = computed(() => {
     if (!searchValue.value || !props.filterOption) return mergedOptions.value;
     const search = searchValue.value.toLowerCase();
     if (typeof props.filterOption === "function") {
-        return mergedOptions.value.filter((opt) => (props.filterOption as Function)(searchValue.value, opt));
+        const filterFn = props.filterOption as (inputValue: string, option: SelectOption) => boolean;
+        return mergedOptions.value.filter((opt) => filterFn(searchValue.value, opt));
     }
     return mergedOptions.value.filter((opt) => opt.label.toLowerCase().includes(search) || String(opt.value).toLowerCase().includes(search));
 });
@@ -302,8 +305,13 @@ const handleOptionClick = (option: SelectOption) => {
 
 const handleClear = (e: Event) => {
     e.stopPropagation();
-    if (isMultiple.value) emit("update:modelValue", []);
-    else emit("update:modelValue", undefined);
+    if (isMultiple.value) {
+        emit("update:modelValue", []);
+        emit("change", [], []);
+    } else {
+        emit("update:modelValue", undefined);
+        emit("change", undefined, undefined);
+    }
     searchValue.value = "";
     emit("clear");
 };
@@ -313,6 +321,8 @@ const handleRemoveTag = (val: string | number) => {
     const current = selectedValues.value.filter((v) => String(v) !== String(val));
     emit("update:modelValue", current);
     const opt = mergedOptions.value.find((o) => String(o.value) === String(val));
+    const opts = current.map((v) => mergedOptions.value.find((o) => String(o.value) === String(v))!).filter(Boolean);
+    emit("change", current, opts);
     if (opt) emit("deselect", val, opt);
 };
 
@@ -441,180 +451,180 @@ defineExpose({
 
 <template>
     <div class="vort-select" :style="attrsStyle">
-    <!-- 隐藏的插槽容器，用于收集 VortSelectOption 子组件 -->
-    <div v-show="false">
-        <slot />
-    </div>
-
-    <!-- 多选模式 -->
-    <div
-        v-if="isMultiple"
-        ref="selectorRef"
-        :class="triggerClasses"
-        tabindex="0"
-        @mouseenter="isHovered = true"
-        @mouseleave="isHovered = false"
-        @click="handleTriggerClick"
-        @keydown="handleKeydown"
-        @focus="handleFocus"
-        @blur="handleBlur"
-    >
-        <span v-if="$slots.prefix" class="vort-select-prefix">
-            <slot name="prefix" />
-        </span>
-
-        <div class="vort-select-selection">
-            <!-- 已选标签 -->
-            <span v-for="option in displayedTags" :key="String(option.value)" :class="tagClasses">
-                <span class="vort-select-tag-text">{{ option.label }}</span>
-                <span v-if="!disabled" class="vort-select-tag-remove" @click.stop="handleRemoveTag(option.value)">
-                    <CloseOutlined class="vort-select-tag-remove-icon" />
-                </span>
-            </span>
-
-            <span v-if="hiddenTagCount > 0" class="vort-select-tag vort-select-tag-placeholder">
-                {{ hiddenTagPlaceholder }}
-            </span>
-
-            <!-- 搜索输入框 -->
-            <input
-                v-if="showSearch"
-                ref="inputRef"
-                :value="searchValue"
-                :placeholder="showPlaceholder ? placeholder : ''"
-                :disabled="disabled"
-                class="vort-select-search-input"
-                autocomplete="off"
-                @input="handleSearchInput"
-                @keydown="handleKeydown"
-            />
-
-            <span v-else-if="showPlaceholder" class="vort-select-placeholder">
-                {{ placeholder }}
-            </span>
+        <!-- 隐藏的插槽容器，用于收集 VortSelectOption 子组件 -->
+        <div v-show="false">
+            <slot />
         </div>
 
-        <span class="vort-select-suffix">
-            <slot name="suffix" />
-            <span class="vort-select-indicator">
-                <span class="vort-select-clear" :class="{ 'vort-select-clear-visible': isClearButtonVisible }" @click="handleClear" @mousedown.prevent>
-                    <CloseCircleFilled />
-                </span>
-                <span class="vort-select-arrow-wrapper" :class="{ 'vort-select-arrow-wrapper-hidden': isClearButtonVisible }">
-                    <DownOutlined :class="['vort-select-arrow', isOpen && 'vort-select-arrow-open']" />
-                </span>
+        <!-- 多选模式 -->
+        <div
+            v-if="isMultiple"
+            ref="selectorRef"
+            :class="triggerClasses"
+            tabindex="0"
+            @mouseenter="isHovered = true"
+            @mouseleave="isHovered = false"
+            @click="handleTriggerClick"
+            @keydown="handleKeydown"
+            @focus="handleFocus"
+            @blur="handleBlur"
+        >
+            <span v-if="$slots.prefix" class="vort-select-prefix">
+                <slot name="prefix" />
             </span>
-        </span>
-    </div>
 
-    <!-- 单选模式 -->
-    <div
-        v-else
-        ref="selectorRef"
-        :class="triggerClasses"
-        tabindex="0"
-        @mouseenter="isHovered = true"
-        @mouseleave="isHovered = false"
-        @click="handleTriggerClick"
-        @keydown="handleKeydown"
-        @focus="handleFocus"
-        @blur="handleBlur"
-    >
-        <span v-if="$slots.prefix" class="vort-select-prefix">
-            <slot name="prefix" />
-        </span>
-
-        <div class="vort-select-selection">
-            <input
-                v-if="showSearch"
-                ref="inputRef"
-                :value="isOpen ? searchValue : displayText"
-                :placeholder="displayText || placeholder"
-                :disabled="disabled"
-                class="vort-select-search-input"
-                autocomplete="off"
-                @input="handleSearchInput"
-                @keydown="handleKeydown"
-            />
-
-            <template v-else>
-                <span v-if="selectedOptions && !isMultiple" :class="['vort-select-value', isOpen && 'vort-select-value-focused']">
-                    <component v-if="(selectedOptions as SelectOption).render" :is="(selectedOptions as SelectOption).render" />
-                    <template v-else>{{ displayText }}</template>
+            <div class="vort-select-selection">
+                <!-- 已选标签 -->
+                <span v-for="option in displayedTags" :key="String(option.value)" :class="tagClasses">
+                    <span class="vort-select-tag-text">{{ option.label }}</span>
+                    <span v-if="!disabled" class="vort-select-tag-remove" @click.stop="handleRemoveTag(option.value)">
+                        <CloseOutlined class="vort-select-tag-remove-icon" />
+                    </span>
                 </span>
-                <span v-else-if="!displayText" class="vort-select-placeholder">
+
+                <span v-if="hiddenTagCount > 0" class="vort-select-tag vort-select-tag-placeholder">
+                    {{ hiddenTagPlaceholder }}
+                </span>
+
+                <!-- 搜索输入框 -->
+                <input
+                    v-if="showSearch"
+                    ref="inputRef"
+                    :value="searchValue"
+                    :placeholder="showPlaceholder ? placeholder : ''"
+                    :disabled="disabled"
+                    class="vort-select-search-input"
+                    autocomplete="off"
+                    @input="handleSearchInput"
+                    @keydown="handleKeydown"
+                />
+
+                <span v-else-if="showPlaceholder" class="vort-select-placeholder">
                     {{ placeholder }}
                 </span>
-            </template>
-        </div>
+            </div>
 
-        <span class="vort-select-suffix">
-            <slot name="suffix" />
-            <span class="vort-select-indicator">
-                <span class="vort-select-clear" :class="{ 'vort-select-clear-visible': isClearButtonVisible }" @click="handleClear" @mousedown.prevent>
-                    <CloseCircleFilled />
-                </span>
-                <span class="vort-select-arrow-wrapper" :class="{ 'vort-select-arrow-wrapper-hidden': isClearButtonVisible }">
-                    <DownOutlined :class="['vort-select-arrow', isOpen && 'vort-select-arrow-open']" />
+            <span class="vort-select-suffix">
+                <slot name="suffix" />
+                <span class="vort-select-indicator">
+                    <span class="vort-select-clear" :class="{ 'vort-select-clear-visible': isClearButtonVisible }" @click="handleClear" @mousedown.prevent>
+                        <CloseCircleFilled />
+                    </span>
+                    <span class="vort-select-arrow-wrapper" :class="{ 'vort-select-arrow-wrapper-hidden': isClearButtonVisible }">
+                        <DownOutlined :class="['vort-select-arrow', isOpen && 'vort-select-arrow-open']" />
+                    </span>
                 </span>
             </span>
-        </span>
-    </div>
-
-    <!-- 下拉内容 -->
-    <Teleport v-if="shouldRenderPortal" :to="popupContainer">
-        <div
-            ref="contentRef"
-            :class="contentClasses"
-            :style="{
-                position: 'fixed',
-                top: `${dropdownPosition.top}px`,
-                left: `${dropdownPosition.left}px`,
-                minWidth: `${dropdownPosition.width}px`,
-                zIndex: zIndex
-            }"
-            :data-state="isOpen ? 'open' : 'closed'"
-            :data-side="actualSide"
-            @animationend="handleAnimationEnd"
-            @mousedown.prevent
-        >
-            <div v-if="$slots.dropdownSearch" class="vort-select-dropdown-search">
-                <slot name="dropdownSearch" />
-            </div>
-
-            <div ref="viewportRef" class="vort-select-dropdown-viewport" :style="{ maxHeight: `${listHeight}px` }">
-                <!-- 空状态 -->
-                <div v-if="filteredOptions.length === 0" class="vort-select-empty">
-                    {{ notFoundContent }}
-                </div>
-
-                <!-- 选项列表 -->
-                <div
-                    v-for="(option, index) in filteredOptions"
-                    :key="String(option.value)"
-                    class="vort-select-option"
-                    :data-highlighted="index === highlightedIndex ? '' : undefined"
-                    :data-state="isValueSelected(option.value) ? 'checked' : undefined"
-                    :data-disabled="option.disabled ? '' : undefined"
-                    @click="handleOptionClick(option)"
-                    @mouseenter="highlightedIndex = index"
-                >
-                    <span class="vort-select-option-content">
-                        <component v-if="option.render" :is="option.render" />
-                        <template v-else>{{ option.label }}</template>
-                    </span>
-
-                    <span v-if="isMultiple && isValueSelected(option.value)" class="vort-select-option-check">
-                        <CheckOutlined class="vort-select-check-icon" />
-                    </span>
-                </div>
-            </div>
-
-            <div v-if="$slots.dropdownRender" class="vort-select-dropdown-footer">
-                <slot name="dropdownRender" />
-            </div>
         </div>
-    </Teleport>
+
+        <!-- 单选模式 -->
+        <div
+            v-else
+            ref="selectorRef"
+            :class="triggerClasses"
+            tabindex="0"
+            @mouseenter="isHovered = true"
+            @mouseleave="isHovered = false"
+            @click="handleTriggerClick"
+            @keydown="handleKeydown"
+            @focus="handleFocus"
+            @blur="handleBlur"
+        >
+            <span v-if="$slots.prefix" class="vort-select-prefix">
+                <slot name="prefix" />
+            </span>
+
+            <div class="vort-select-selection">
+                <input
+                    v-if="showSearch"
+                    ref="inputRef"
+                    :value="isOpen ? searchValue : displayText"
+                    :placeholder="displayText || placeholder"
+                    :disabled="disabled"
+                    class="vort-select-search-input"
+                    autocomplete="off"
+                    @input="handleSearchInput"
+                    @keydown="handleKeydown"
+                />
+
+                <template v-else>
+                    <span v-if="selectedOptions && !isMultiple" :class="['vort-select-value', isOpen && 'vort-select-value-focused']">
+                        <component v-if="(selectedOptions as SelectOption).render" :is="(selectedOptions as SelectOption).render" />
+                        <template v-else>{{ displayText }}</template>
+                    </span>
+                    <span v-else-if="!displayText" class="vort-select-placeholder">
+                        {{ placeholder }}
+                    </span>
+                </template>
+            </div>
+
+            <span class="vort-select-suffix">
+                <slot name="suffix" />
+                <span class="vort-select-indicator">
+                    <span class="vort-select-clear" :class="{ 'vort-select-clear-visible': isClearButtonVisible }" @click="handleClear" @mousedown.prevent>
+                        <CloseCircleFilled />
+                    </span>
+                    <span class="vort-select-arrow-wrapper" :class="{ 'vort-select-arrow-wrapper-hidden': isClearButtonVisible }">
+                        <DownOutlined :class="['vort-select-arrow', isOpen && 'vort-select-arrow-open']" />
+                    </span>
+                </span>
+            </span>
+        </div>
+
+        <!-- 下拉内容 -->
+        <Teleport v-if="shouldRenderPortal" :to="popupContainer">
+            <div
+                ref="contentRef"
+                :class="contentClasses"
+                :style="{
+                    position: 'fixed',
+                    top: `${dropdownPosition.top}px`,
+                    left: `${dropdownPosition.left}px`,
+                    minWidth: `${dropdownPosition.width}px`,
+                    zIndex: zIndex
+                }"
+                :data-state="isOpen ? 'open' : 'closed'"
+                :data-side="actualSide"
+                @animationend="handleAnimationEnd"
+                @mousedown.prevent
+            >
+                <div v-if="$slots.dropdownSearch" class="vort-select-dropdown-search">
+                    <slot name="dropdownSearch" />
+                </div>
+
+                <div ref="viewportRef" class="vort-select-dropdown-viewport" :style="{ maxHeight: `${listHeight}px` }">
+                    <!-- 空状态 -->
+                    <div v-if="filteredOptions.length === 0" class="vort-select-empty">
+                        {{ notFoundContent }}
+                    </div>
+
+                    <!-- 选项列表 -->
+                    <div
+                        v-for="(option, index) in filteredOptions"
+                        :key="String(option.value)"
+                        class="vort-select-option"
+                        :data-highlighted="index === highlightedIndex ? '' : undefined"
+                        :data-state="isValueSelected(option.value) ? 'checked' : undefined"
+                        :data-disabled="option.disabled ? '' : undefined"
+                        @click="handleOptionClick(option)"
+                        @mouseenter="highlightedIndex = index"
+                    >
+                        <span class="vort-select-option-content">
+                            <component v-if="option.render" :is="option.render" />
+                            <template v-else>{{ option.label }}</template>
+                        </span>
+
+                        <span v-if="isMultiple && isValueSelected(option.value)" class="vort-select-option-check">
+                            <CheckOutlined class="vort-select-check-icon" />
+                        </span>
+                    </div>
+                </div>
+
+                <div v-if="$slots.dropdownRender" class="vort-select-dropdown-footer">
+                    <slot name="dropdownRender" />
+                </div>
+            </div>
+        </Teleport>
     </div>
 </template>
 
@@ -742,61 +752,255 @@ defineExpose({
 }
 
 /* 尺寸 */
-.vort-select-large { height: var(--vort-height-lg, 40px); padding: 0 11px; font-size: var(--vort-font-size-md, 16px); }
-.vort-select-large.vort-select-multiple { min-height: var(--vort-height-lg, 40px); height: auto; }
-.vort-select-middle { height: var(--vort-height-md, 32px); padding: 0 11px; font-size: var(--vort-font-size-sm, 14px); }
-.vort-select-middle.vort-select-multiple { min-height: var(--vort-height-md, 32px); height: auto; }
-.vort-select-small { height: var(--vort-height-sm, 24px); padding: 0 7px; font-size: var(--vort-font-size-sm, 14px); }
-.vort-select-small.vort-select-multiple { min-height: var(--vort-height-sm, 24px); height: auto; }
+.vort-select-large {
+    height: var(--vort-height-lg, 40px);
+    padding: 0 11px;
+    font-size: var(--vort-font-size-md, 16px);
+}
+.vort-select-large.vort-select-multiple {
+    min-height: var(--vort-height-lg, 40px);
+    height: auto;
+}
+.vort-select-middle {
+    height: var(--vort-height-md, 32px);
+    padding: 0 11px;
+    font-size: var(--vort-font-size-sm, 14px);
+}
+.vort-select-middle.vort-select-multiple {
+    min-height: var(--vort-height-md, 32px);
+    height: auto;
+}
+.vort-select-small {
+    height: var(--vort-height-sm, 24px);
+    padding: 0 7px;
+    font-size: var(--vort-font-size-sm, 14px);
+}
+.vort-select-small.vort-select-multiple {
+    min-height: var(--vort-height-sm, 24px);
+    height: auto;
+}
 
 /* 内部元素 */
-.vort-select-prefix { display: flex; align-items: center; flex-shrink: 0; margin-right: 4px; color: var(--vort-text-quaternary, rgba(0, 0, 0, 0.25)); }
-.vort-select-selection { display: flex; flex-wrap: wrap; align-items: center; flex: 1; min-width: 0; gap: 4px; padding: 3px 0; }
-.vort-select-suffix { display: flex; align-items: center; flex-shrink: 0; margin-left: 4px; gap: 4px; }
-.vort-select-indicator { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; flex-shrink: 0; }
+.vort-select-prefix {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    margin-right: 4px;
+    color: var(--vort-text-quaternary, rgba(0, 0, 0, 0.25));
+}
+.vort-select-selection {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+    gap: 4px;
+    padding: 3px 0;
+}
+.vort-select-suffix {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    margin-left: 4px;
+    gap: 4px;
+}
+.vort-select-indicator {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
 
 /* 清除按钮 */
-.vort-select-clear { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--vort-text-quaternary, rgba(0, 0, 0, 0.25)); cursor: pointer; opacity: 0; visibility: hidden; pointer-events: none; transition: color var(--vort-transition-colors, 0.1s), opacity var(--vort-transition-colors, 0.1s); }
-.vort-select-clear-visible { opacity: 1; visibility: visible; pointer-events: auto; }
-.vort-select-clear:hover { color: var(--vort-text-tertiary, rgba(0, 0, 0, 0.45)); }
+.vort-select-clear {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: var(--vort-text-quaternary, rgba(0, 0, 0, 0.25));
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+        color var(--vort-transition-colors, 0.1s),
+        opacity var(--vort-transition-colors, 0.1s);
+}
+.vort-select-clear-visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+.vort-select-clear:hover {
+    color: var(--vort-text-tertiary, rgba(0, 0, 0, 0.45));
+}
 
 /* 下拉箭头 */
-.vort-select-arrow-wrapper { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; line-height: 1; transition: opacity var(--vort-transition-colors, 0.1s); }
-.vort-select-arrow-wrapper-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-.vort-select-arrow { font-size: 12px; color: var(--vort-text-quaternary, rgba(0, 0, 0, 0.25)); transition: transform var(--vort-transition-colors, 0.2s); }
-.vort-select-arrow-open { transform: rotate(180deg); }
+.vort-select-arrow-wrapper {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: opacity var(--vort-transition-colors, 0.1s);
+}
+.vort-select-arrow-wrapper-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+.vort-select-arrow {
+    font-size: 12px;
+    color: var(--vort-text-quaternary, rgba(0, 0, 0, 0.25));
+    transition: transform var(--vort-transition-colors, 0.2s);
+}
+.vort-select-arrow-open {
+    transform: rotate(180deg);
+}
 
 /* 占位符/值 */
-.vort-select-placeholder { color: var(--vort-text-quaternary, rgba(0, 0, 0, 0.25)); }
-.vort-select-value { display: flex; align-items: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--vort-text, rgba(0, 0, 0, 0.88)); transition: color var(--vort-transition-colors, 0.2s); }
-.vort-select-value-focused { color: rgba(0, 0, 0, 0.25); }
+.vort-select-placeholder {
+    color: var(--vort-text-quaternary, rgba(0, 0, 0, 0.25));
+}
+.vort-select-value {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--vort-text, rgba(0, 0, 0, 0.88));
+    transition: color var(--vort-transition-colors, 0.2s);
+}
+.vort-select-value-focused {
+    color: rgba(0, 0, 0, 0.25);
+}
 
 /* 搜索输入 */
-.vort-select-search-input { flex: 1; min-width: 60px; width: 100%; background: transparent; border: none; outline: none; color: var(--vort-text, rgba(0, 0, 0, 0.88)); font-size: inherit; padding: 0; }
-.vort-select-search-input::placeholder { color: var(--vort-text-quaternary, rgba(0, 0, 0, 0.25)); }
+.vort-select-search-input {
+    flex: 1;
+    min-width: 60px;
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--vort-text, rgba(0, 0, 0, 0.88));
+    font-size: inherit;
+    padding: 0;
+}
+.vort-select-search-input::placeholder {
+    color: var(--vort-text-quaternary, rgba(0, 0, 0, 0.25));
+}
 
 /* 多选标签 */
-.vort-select-tag { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; padding: 0 4px; background: rgba(0, 0, 0, 0.06); border-radius: var(--vort-radius-sm, 4px); }
-.vort-select-tag-placeholder { color: var(--vort-text-secondary, rgba(0, 0, 0, 0.65)); }
-.vort-select-tag-large { height: 24px; font-size: var(--vort-font-size-sm, 14px); }
-.vort-select-tag-middle { height: 22px; font-size: var(--vort-font-size-sm, 14px); }
-.vort-select-tag-small { height: 16px; font-size: var(--vort-font-size-xs, 12px); }
-.vort-select-tag-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.vort-select-tag-remove { display: flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: var(--vort-radius-sm, 4px); cursor: pointer; transition: background-color var(--vort-transition-colors, 0.1s); }
-.vort-select-tag-remove:hover { background: rgba(0, 0, 0, 0.1); }
-.vort-select-tag-remove-icon { font-size: 10px; color: var(--vort-text-tertiary, rgba(0, 0, 0, 0.45)); }
+.vort-select-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    max-width: 100%;
+    padding: 0 4px;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: var(--vort-radius-sm, 4px);
+}
+.vort-select-tag-placeholder {
+    color: var(--vort-text-secondary, rgba(0, 0, 0, 0.65));
+}
+.vort-select-tag-large {
+    height: 24px;
+    font-size: var(--vort-font-size-sm, 14px);
+}
+.vort-select-tag-middle {
+    height: 22px;
+    font-size: var(--vort-font-size-sm, 14px);
+}
+.vort-select-tag-small {
+    height: 16px;
+    font-size: var(--vort-font-size-xs, 12px);
+}
+.vort-select-tag-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.vort-select-tag-remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: var(--vort-radius-sm, 4px);
+    cursor: pointer;
+    transition: background-color var(--vort-transition-colors, 0.1s);
+}
+.vort-select-tag-remove:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+.vort-select-tag-remove-icon {
+    font-size: 10px;
+    color: var(--vort-text-tertiary, rgba(0, 0, 0, 0.45));
+}
 
 /* 下拉面板内元素（scoped 部分） */
-.vort-select-dropdown-search { padding: 8px; border-bottom: 1px solid var(--vort-border, #d9d9d9); }
-.vort-select-dropdown-viewport { padding: 4px; overflow-y: auto; }
-.vort-select-dropdown-footer { border-top: 1px solid var(--vort-border, #d9d9d9); }
-.vort-select-empty { padding: 24px 12px; text-align: center; font-size: var(--vort-font-size-sm, 14px); color: var(--vort-text-quaternary, rgba(0, 0, 0, 0.25)); }
-.vort-select-option { position: relative; display: flex; align-items: center; width: 100%; padding: 5px 12px; font-size: var(--vort-font-size-sm, 14px); line-height: 22px; cursor: pointer; user-select: none; outline: none; border-radius: var(--vort-radius-sm, 4px); transition: background-color var(--vort-transition-colors, 0.15s); }
-.vort-select-option:hover { background: rgba(0, 0, 0, 0.04); }
-.vort-select-option[data-highlighted] { background: rgba(0, 0, 0, 0.04); }
-.vort-select-option[data-state="checked"] { background: var(--vort-primary-bg, #e8f0fe); font-weight: 500; }
-.vort-select-option[data-disabled] { opacity: 0.5; pointer-events: none; }
-.vort-select-option-content { flex: 1; white-space: nowrap; }
-.vort-select-option-check { margin-left: 8px; }
-.vort-select-check-icon { width: 16px; height: 16px; color: var(--vort-primary, #1456f0); }
+.vort-select-dropdown-search {
+    padding: 8px;
+    border-bottom: 1px solid var(--vort-border, #d9d9d9);
+}
+.vort-select-dropdown-viewport {
+    padding: 4px;
+    overflow-y: auto;
+}
+.vort-select-dropdown-footer {
+    border-top: 1px solid var(--vort-border, #d9d9d9);
+}
+.vort-select-empty {
+    padding: 24px 12px;
+    text-align: center;
+    font-size: var(--vort-font-size-sm, 14px);
+    color: var(--vort-text-quaternary, rgba(0, 0, 0, 0.25));
+}
+.vort-select-option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 5px 12px;
+    font-size: var(--vort-font-size-sm, 14px);
+    line-height: 22px;
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+    border-radius: var(--vort-radius-sm, 4px);
+    transition: background-color var(--vort-transition-colors, 0.15s);
+}
+.vort-select-option:hover {
+    background: rgba(0, 0, 0, 0.04);
+}
+.vort-select-option[data-highlighted] {
+    background: rgba(0, 0, 0, 0.04);
+}
+.vort-select-option[data-state="checked"] {
+    background: var(--vort-primary-bg, #e8f0fe);
+    font-weight: 500;
+}
+.vort-select-option[data-disabled] {
+    opacity: 0.5;
+    pointer-events: none;
+}
+.vort-select-option-content {
+    flex: 1;
+    white-space: nowrap;
+}
+.vort-select-option-check {
+    margin-left: 8px;
+}
+.vort-select-check-icon {
+    width: 16px;
+    height: 16px;
+    color: var(--vort-primary, #1456f0);
+}
 </style>

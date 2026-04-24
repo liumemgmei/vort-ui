@@ -125,7 +125,15 @@ const handleOpenChange = (open: boolean) => {
 <template>
     <div class="vort-dropdown-button">
         <!-- 左侧主按钮 -->
-        <Button :type="type" :size="size" :danger="danger" :disabled="isLeftDisabled" :loading="loading" class="vort-dropdown-button-left" @click="handleLeftClick">
+        <Button
+            :type="type"
+            :size="size"
+            :danger="danger"
+            :disabled="isLeftDisabled"
+            :loading="loading"
+            class="vort-dropdown-button-left"
+            @click="handleLeftClick"
+        >
             <slot />
         </Button>
 

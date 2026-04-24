@@ -289,7 +289,7 @@ const customOptions = [
                         <template #label="{ option }">
                             <div class="text-center py-1">
                                 <div class="font-medium">{{ option.label }}</div>
-                                <div class="text-xs text-[var(--vort-text-tertiary)]">{{ (option as any).description }}</div>
+                                <div class="text-xs text-[var(--vort-text-tertiary)]">{{ (option as Record<string, unknown>).description }}</div>
                             </div>
                         </template>
                     </vort-segmented>

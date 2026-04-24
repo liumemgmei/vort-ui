@@ -137,6 +137,8 @@ export interface UploadEmits {
 export interface UploadDraggerProps extends Omit<UploadProps, "listType" | "openFileDialogOnClick"> {
     /** 拖拽区域高度 */
     height?: string | number;
+    /** 自定义提示文字 */
+    hint?: string;
 }
 
 /** UploadDragger 组件 Emits */

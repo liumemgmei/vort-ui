@@ -11,8 +11,8 @@ export interface TableColumnProps {
     minWidth?: number | string;
     /** 列对齐方式 */
     align?: "left" | "center" | "right";
-    /** 是否固定列 */
-    fixed?: "left" | "right";
+    /** 是否固定列（true 为左侧固定） */
+    fixed?: boolean | "left" | "right";
     /** 单元格样式类名 */
     className?: string;
     /** 表头样式类名 */
@@ -168,7 +168,7 @@ const buildColumnConfig = (): TableColumn => {
         width: props.width,
         minWidth: props.minWidth,
         align: props.align,
-        fixed: props.fixed,
+        fixed: props.fixed === true ? "left" : props.fixed === false ? undefined : props.fixed,
         className: props.className,
         headerClassName: props.headerClassName,
         ellipsis: props.ellipsis

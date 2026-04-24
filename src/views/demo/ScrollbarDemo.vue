@@ -198,12 +198,12 @@ const exposesData = [
     {
         name: "setScrollTop",
         desc: "设置滚动条到顶部的距离",
-        type: "(value: number) => void"
+        type: "(value) => void"
     },
     {
         name: "setScrollLeft",
         desc: "设置滚动条到左边的距离",
-        type: "(value: number) => void"
+        type: "(value) => void"
     },
     {
         name: "update",
